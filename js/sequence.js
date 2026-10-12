@@ -517,43 +517,33 @@ export function initSequence(config = {}) {
 
     if (hasFallbackMode) return;
 
-    // 2. Batch load remaining frames
-    const batchSize = 8;
-    const remainingIndices = [];
-    for (let i = 1; i < activeCount; i++) {
-      remainingIndices.push(i);
-    }
+    // 2. Load remaining frames with a rolling pool (no batch barrier, no forced decode)
+    const queue = [];
+    for (let i = 1; i < activeCount; i++) queue.push(i);
+    const POOL = 6;
 
-    async function loadBatch(indices) {
-      const promises = indices.map((idx) => {
-        return new Promise((resolve) => {
-          const img = new Image();
-          img.src = getFrameSrc(idx);
-          img.onload = async () => {
-            try {
-              if (img.decode) {
-                await img.decode();
-              }
-            } catch {
-              // Ignore decode rejection
-            }
-            images[idx] = img;
-            loadedCount++;
-            reportPreloadProgress();
-            resolve();
-          };
-          img.onerror = () => {
-            resolve();
-          };
-        });
+    function loadOne(idx) {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.decoding = 'async';
+        img.onload = () => {
+          images[idx] = img;
+          loadedCount++;
+          reportPreloadProgress();
+          resolve();
+        };
+        img.onerror = () => resolve();
+        img.src = getFrameSrc(idx);
       });
-      await Promise.all(promises);
     }
 
-    for (let i = 0; i < remainingIndices.length; i += batchSize) {
-      const chunk = remainingIndices.slice(i, i + batchSize);
-      await loadBatch(chunk);
+    async function worker() {
+      while (queue.length) {
+        await loadOne(queue.shift());
+      }
     }
+
+    for (let w = 0; w < POOL; w++) worker();
   }
 
   function reportPreloadProgress(forceRatio = null) {
