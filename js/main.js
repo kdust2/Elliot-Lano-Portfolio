@@ -90,6 +90,9 @@ function initPreloader(hasSequence) {
   let targetPercent = 0;
   let isDone = false;
 
+  // Lock scrolling while the preloader curtain is up
+  getLenis()?.stop();
+
   function setVisualPercent(val) {
     if (percentEl) percentEl.textContent = `${Math.round(val)}%`;
     if (barFill) barFill.style.width = `${Math.min(100, Math.round(val))}%`;
@@ -117,6 +120,7 @@ function initPreloader(hasSequence) {
       setTimeout(() => {
         preloader.classList.add('loaded');
         document.body.classList.remove('loading');
+        getLenis()?.start();
       }, 250);
     }
   }, 30);
@@ -146,11 +150,13 @@ function initMobileMenu() {
       menuBtn.classList.remove('open');
       menuBtn.setAttribute('aria-expanded', 'false');
       document.body.style.overflow = '';
+      getLenis()?.start();
     } else {
       drawer.classList.add('open');
       menuBtn.classList.add('open');
       menuBtn.setAttribute('aria-expanded', 'true');
       document.body.style.overflow = 'hidden';
+      getLenis()?.stop();
     }
   }
 
@@ -201,6 +207,23 @@ function highlightActiveNav() {
 function initContactForm() {
   const form = document.getElementById('contact-form');
   if (!form) return;
+
+  const waBtn = document.getElementById('whatsapp-send-btn');
+  if (waBtn) {
+    waBtn.addEventListener('click', () => {
+      const name = document.getElementById('contact-name');
+      const message = document.getElementById('contact-message');
+      const nameError = document.getElementById('name-error');
+      const messageError = document.getElementById('message-error');
+      const nameOk = !!name.value.trim();
+      const msgOk = message.value.trim().length >= 10;
+      nameError?.classList.toggle('visible', !nameOk);
+      messageError?.classList.toggle('visible', !msgOk);
+      if (!nameOk || !msgOk) return;
+      const text = encodeURIComponent(`Hi Elliot, I'm ${name.value.trim()}.\n\n${message.value.trim()}`);
+      window.open(`https://wa.me/233591260963?text=${text}`, '_blank', 'noopener');
+    });
+  }
 
   form.addEventListener('submit', (e) => {
     e.preventDefault();
