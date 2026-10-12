@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Selected Work | Elliot Lano Frontend Portfolio</title>
+  <meta name="description" content="Explore production case studies by Elliot Lano: school platforms with admissions workflows, fast multi-page institutional sites, and WhatsApp-integrated fashion e-commerce." />
+  <meta name="author" content="Elliot Lano" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Selected Work | Elliot Lano Frontend Portfolio" />
+  <meta property="og:description" content="Production case studies by Elliot Lano: STAR Preparatory JHS, Treasure International School, and Elite Touch Collections." />
+  <meta property="og:image" content="/images/og-image.webp" />
+
+  <link rel="icon" type="image/svg+xml" href="/images/favicon.svg" />
+
+  <script>
+    (function () {
+      try {
+        const saved = localStorage.getItem('theme');
+        const prefDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const theme = saved || (prefDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
+
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <div id="scroll-progress" aria-hidden="true"></div>
+  <div class="film-grain" aria-hidden="true"></div>
+  <div class="cursor-dot" aria-hidden="true"></div>
+  <div class="cursor-ring" aria-hidden="true"></div>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container nav-inner">
+      <a href="index.html" class="site-brand" aria-label="Elliot Lano Home">
+        <span class="brand-monogram">EL</span>
+        <span>Elliot Lano</span>
+      </a>
+
+      <nav class="site-nav" aria-label="Main Navigation">
+        <ul class="nav-links">
+          <li><a href="index.html" class="nav-link">Home</a></li>
+          <li><a href="work.html" class="nav-link active">Work</a></li>
+          <li><a href="about.html" class="nav-link">About</a></li>
+          <li><a href="services.html" class="nav-link">Services</a></li>
+          <li><a href="contact.html" class="nav-link">Contact</a></li>
+        </ul>
+
+        <button id="theme-toggle-btn" class="theme-toggle-btn" aria-label="Switch color theme" type="button">
+          <svg id="theme-toggle-icon" class="theme-toggle-icon" viewBox="0 0 24 24" width="20" height="20"></svg>
+        </button>
+      </nav>
+
+      <button id="mobile-menu-btn" class="mobile-menu-btn" aria-label="Toggle navigation menu" aria-expanded="false" type="button">
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Mobile Drawer -->
+  <div id="mobile-drawer" class="mobile-drawer" role="dialog" aria-modal="true" aria-label="Mobile Navigation">
+    <ul class="mobile-drawer-links">
+      <li><a href="index.html" class="mobile-drawer-link">Home</a></li>
+      <li><a href="work.html" class="mobile-drawer-link active">Work</a></li>
+      <li><a href="about.html" class="mobile-drawer-link">About</a></li>
+      <li><a href="services.html" class="mobile-drawer-link">Services</a></li>
+      <li><a href="contact.html" class="mobile-drawer-link">Contact</a></li>
+    </ul>
+    <div class="mobile-drawer-footer">
+      <a href="mailto:lanoelliot@gmail.com" class="font-mono" style="font-size: 0.9rem; color: var(--accent);">lanoelliot@gmail.com</a>
+      <a href="https://github.com/kdust2" target="_blank" rel="noopener noreferrer" class="font-mono" style="font-size: 0.9rem; color: var(--text-muted);">GitHub</a>
+    </div>
+  </div>
+
+  <main id="main-content" class="section container" style="padding-top: calc(var(--header-height) + 60px);">
+    <div class="section-header">
+      <span class="section-tag">Case Studies</span>
+      <h1 class="section-title">Selected Production Work</h1>
+      <p class="section-desc">
+        Each project represents a dedicated solution to a real business challenge. Detailed case studies, architecture breakdowns, and direct live deployment links below.
+      </p>
+    </div>
+
+    <div class="projects-grid">
+      <!-- Project 1: STAR Preparatory -->
+      <article class="project-card">
+        <div class="project-mockup-wrapper">
+          <div class="browser-chrome">
+            <div class="browser-dot dot-red"></div>
+            <div class="browser-dot dot-yellow"></div>
+            <div class="browser-dot dot-green"></div>
+            <div class="browser-address">kdust2.github.io/STAR-INTERNATIONAL-PREPARATORY-JHS</div>
+          </div>
+          <img src="/images/star-preview.webp" alt="STAR International Preparatory JHS Case Study Mockup" class="project-mockup-img" loading="lazy" width="1280" height="800" />
+        </div>
+
+        <div class="project-details">
+          <div class="project-meta-row">
+            <span>01 // INSTITUTIONAL</span>
+            <span>2024 &bull; 106 Commits</span>
+          </div>
+          <h2 class="project-title">STAR International Preparatory JHS</h2>
+          <p class="project-summary">
+            A junior high school required a credible online platform for parent engagement and student enrollment. Delivered a multi-page responsive site with an application pipeline, academic calendar, student showcase, and full legal policy compliance.
+          </p>
+          <div class="project-tags">
+            <span class="tag-badge">Semantic HTML5</span>
+            <span class="tag-badge">Modular CSS</span>
+            <span class="tag-badge">JavaScript</span>
+            <span class="tag-badge">GitHub Actions CI</span>
+            <span class="tag-badge">WCAG Accessibility</span>
+          </div>
+          <div class="project-actions">
+            <a href="project-star.html" class="btn btn-primary">
+              <span>Read Full Case Study</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </a>
+            <a href="http://kdust2.github.io/STAR-INTERNATIONAL-PREPARATORY-JHS/" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
+              <span>View Live Site</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+            </a>
+          </div>
+        </div>
+      </article>
+
+      <!-- Project 2: Treasure International School -->
+      <article class="project-card">
+        <div class="project-mockup-wrapper">
+          <div class="browser-chrome">
+            <div class="browser-dot dot-red"></div>
+            <div class="browser-dot dot-yellow"></div>
+            <div class="browser-dot dot-green"></div>
+            <div class="browser-address">kdust2.github.io/Treasure-International-School</div>
+          </div>
+          <img src="/images/treasure-preview.webp" alt="Treasure International School Case Study Mockup" class="project-mockup-img" loading="lazy" width="1280" height="800" />
+        </div>
+
+        <div class="project-details">
+          <div class="project-meta-row">
+            <span>02 // EDUCATION</span>
+            <span>2024 &bull; Static Vanilla Architecture</span>
+          </div>
+          <h2 class="project-title">Treasure International School</h2>
+          <p class="project-summary">
+            A comprehensive six-page digital portal clearly presenting academics, admissions guidelines, and events to parents. Engineered without build steps, featuring shared styling tokens, reusable navigation controllers, and performant scroll reveals.
+          </p>
+          <div class="project-tags">
+            <span class="tag-badge">HTML5</span>
+            <span class="tag-badge">CSS Custom Properties</span>
+            <span class="tag-badge">Vanilla JavaScript</span>
+            <span class="tag-badge">Scroll-Reveal Engine</span>
+            <span class="tag-badge">Static Hosting</span>
+          </div>
+          <div class="project-actions">
+            <a href="project-treasure.html" class="btn btn-primary">
+              <span>Read Full Case Study</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </a>
+            <a href="https://kdust2.github.io/Treasure-International-School/" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
+              <span>View Live Site</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+            </a>
+          </div>
+        </div>
+      </article>
+
+      <!-- Project 3: Elite Touch Collections -->
+      <article class="project-card">
+        <div class="project-mockup-wrapper">
+          <div class="browser-chrome">
+            <div class="browser-dot dot-red"></div>
+            <div class="browser-dot dot-yellow"></div>
+            <div class="browser-dot dot-green"></div>
+            <div class="browser-address">kdust2.github.io/Elite-Touch-Shop</div>
+          </div>
+          <img src="/images/elite-preview.webp" alt="Elite Touch Collections Case Study Mockup" class="project-mockup-img" loading="lazy" width="1280" height="800" />
+        </div>
+
+        <div class="project-details">
+          <div class="project-meta-row">
+            <span>03 // E-COMMERCE</span>
+            <span>2024 &bull; WhatsApp Commerce</span>
+          </div>
+          <h2 class="project-title">Elite Touch Collections</h2>
+          <p class="project-summary">
+            An online fashion catalog tailored specifically to buying practices in Ghana. Features category filtering, dynamic shopping cart drawer with price calculations in Ghana Cedis (₵), and one-tap checkout that formats items directly into WhatsApp messages.
+          </p>
+          <div class="project-tags">
+            <span class="tag-badge">Interactive Cart Drawer</span>
+            <span class="tag-badge">Category Filters</span>
+            <span class="tag-badge">WhatsApp API Integration</span>
+            <span class="tag-badge">Ghana Cedis (₵)</span>
+            <span class="tag-badge">Zero Friction Checkout</span>
+          </div>
+          <div class="project-actions">
+            <a href="project-elite-touch.html" class="btn btn-primary">
+              <span>Read Full Case Study</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </a>
+            <a href="https://kdust2.github.io/Elite-Touch-Shop/" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
+              <span>View Live Site</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+            </a>
+          </div>
+        </div>
+      </article>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <div class="footer-brand-bio">
+          <a href="index.html" class="site-brand" style="margin-bottom: 16px;">
+            <span class="brand-monogram">EL</span>
+            <span>Elliot Lano</span>
+          </a>
+          <p style="font-size: 0.95rem; color: var(--text-secondary);">
+            Frontend Developer building fast, accessible, clean interfaces that make products easier to use and easier to trust.
+          </p>
+        </div>
+
+        <div class="footer-links-group">
+          <div>
+            <div class="footer-col-title">Navigation</div>
+            <ul class="footer-links-list">
+              <li><a href="work.html" class="footer-link">Selected Work</a></li>
+              <li><a href="about.html" class="footer-link">About &amp; Timeline</a></li>
+              <li><a href="services.html" class="footer-link">Services &amp; Process</a></li>
+              <li><a href="contact.html" class="footer-link">Contact</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <div class="footer-col-title">Connect</div>
+            <ul class="footer-links-list">
+              <li><a href="mailto:lanoelliot@gmail.com" class="footer-link">lanoelliot@gmail.com</a></li>
+              <li><a href="https://github.com/kdust2" target="_blank" rel="noopener noreferrer" class="footer-link">GitHub @kdust2</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>&copy; 2026 Elliot Lano. All rights reserved.</div>
+        <button id="back-to-top-btn" class="back-to-top-btn" type="button">
+          <span>Back to top</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"></polyline></svg>
+        </button>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
+  <script type="module" src="/js/main.js"></script>
+</body>
+</html>

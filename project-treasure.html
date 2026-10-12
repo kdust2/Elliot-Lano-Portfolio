@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Treasure International School Case Study | Elliot Lano</title>
+  <meta name="description" content="Case study: A clean six-page static institutional platform with reusable navigation scripts and scroll reveals for Treasure International School." />
+  <meta name="author" content="Elliot Lano" />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="Treasure International School Case Study | Elliot Lano" />
+  <meta property="og:description" content="Six-page responsive educational website presenting academics, admissions, and events with zero-build static architecture." />
+  <meta property="og:image" content="/images/treasure-preview.webp" />
+
+  <link rel="icon" type="image/svg+xml" href="/images/favicon.svg" />
+
+  <script>
+    (function () {
+      try {
+        const saved = localStorage.getItem('theme');
+        const prefDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const theme = saved || (prefDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
+
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <div id="scroll-progress" aria-hidden="true"></div>
+  <div class="film-grain" aria-hidden="true"></div>
+  <div class="cursor-dot" aria-hidden="true"></div>
+  <div class="cursor-ring" aria-hidden="true"></div>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container nav-inner">
+      <a href="index.html" class="site-brand" aria-label="Elliot Lano Home">
+        <span class="brand-monogram">EL</span>
+        <span>Elliot Lano</span>
+      </a>
+
+      <nav class="site-nav" aria-label="Main Navigation">
+        <ul class="nav-links">
+          <li><a href="index.html" class="nav-link">Home</a></li>
+          <li><a href="work.html" class="nav-link active">Work</a></li>
+          <li><a href="about.html" class="nav-link">About</a></li>
+          <li><a href="services.html" class="nav-link">Services</a></li>
+          <li><a href="contact.html" class="nav-link">Contact</a></li>
+        </ul>
+
+        <button id="theme-toggle-btn" class="theme-toggle-btn" aria-label="Switch color theme" type="button">
+          <svg id="theme-toggle-icon" class="theme-toggle-icon" viewBox="0 0 24 24" width="20" height="20"></svg>
+        </button>
+      </nav>
+
+      <button id="mobile-menu-btn" class="mobile-menu-btn" aria-label="Toggle navigation menu" aria-expanded="false" type="button">
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Mobile Drawer -->
+  <div id="mobile-drawer" class="mobile-drawer" role="dialog" aria-modal="true" aria-label="Mobile Navigation">
+    <ul class="mobile-drawer-links">
+      <li><a href="index.html" class="mobile-drawer-link">Home</a></li>
+      <li><a href="work.html" class="mobile-drawer-link active">Work</a></li>
+      <li><a href="about.html" class="mobile-drawer-link">About</a></li>
+      <li><a href="services.html" class="mobile-drawer-link">Services</a></li>
+      <li><a href="contact.html" class="mobile-drawer-link">Contact</a></li>
+    </ul>
+    <div class="mobile-drawer-footer">
+      <a href="mailto:lanoelliot@gmail.com" class="font-mono" style="font-size: 0.9rem; color: var(--accent);">lanoelliot@gmail.com</a>
+      <a href="https://github.com/kdust2" target="_blank" rel="noopener noreferrer" class="font-mono" style="font-size: 0.9rem; color: var(--text-muted);">GitHub</a>
+    </div>
+  </div>
+
+  <main id="main-content">
+    <!-- Hero Block -->
+    <section class="case-study-hero container">
+      <span class="section-tag">Case Study // Education</span>
+      <h1 class="hero-title" style="margin-bottom: 20px;">Treasure International School</h1>
+      <p class="hero-subtitle" style="margin-bottom: 32px;">
+        A polished, six-page institutional web experience presenting curriculum excellence, admissions pathways, and events with clean vanilla engineering.
+      </p>
+
+      <div class="project-actions" style="margin-bottom: 24px;">
+        <a href="https://kdust2.github.io/Treasure-International-School/" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
+          <span>View live site</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+        </a>
+      </div>
+
+      <!-- Metadata Grid -->
+      <div class="case-meta-grid">
+        <div>
+          <div class="case-meta-label">Role</div>
+          <div class="case-meta-value">Frontend Architect</div>
+        </div>
+        <div>
+          <div class="case-meta-label">Architecture</div>
+          <div class="case-meta-value">Vanilla Static &bull; Zero Build Step</div>
+        </div>
+        <div>
+          <div class="case-meta-label">Stack</div>
+          <div class="case-meta-value">HTML5, CSS3 Tokens, Vanilla JS</div>
+        </div>
+        <div>
+          <div class="case-meta-label">Pages</div>
+          <div class="case-meta-value">6 Distinct Modular Pages</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Browser Frame Interactive Mockup -->
+    <section class="container">
+      <div class="case-browser-frame">
+        <div class="browser-chrome">
+          <div class="browser-dot dot-red"></div>
+          <div class="browser-dot dot-yellow"></div>
+          <div class="browser-dot dot-green"></div>
+          <div class="browser-address">https://treasureinternationalschool.edu/admissions</div>
+        </div>
+        <div class="case-browser-viewport" tabindex="0" aria-label="Interactive preview of Treasure International School website">
+          <img src="/images/treasure-preview.webp" alt="Full landing page view of Treasure International School" width="1280" height="800" />
+        </div>
+      </div>
+    </section>
+
+    <!-- Body Content -->
+    <div class="container container-narrow">
+      <!-- The Problem -->
+      <section class="case-content-block">
+        <span class="section-tag">01 // The Challenge</span>
+        <h2 class="case-block-title">The Problem</h2>
+        <p style="font-size: 1.15rem; line-height: 1.75; margin-bottom: 20px;">
+          Treasure International School needed an official digital presence that reflected the rigor and warmth of its educational standards. Previously, parents lacked a single authoritative source to check curriculum details, admissions requirements, and upcoming academic events.
+        </p>
+        <p style="font-size: 1.15rem; line-height: 1.75;">
+          The solution needed to be easily maintainable by the school's administrative team without complex build tooling or ongoing server maintenance overhead.
+        </p>
+      </section>
+
+      <!-- The Solution -->
+      <section class="case-content-block">
+        <span class="section-tag">02 // The Solution</span>
+        <h2 class="case-block-title">Key Architectural Features</h2>
+        <p style="font-size: 1.15rem; line-height: 1.75;">
+          Crafted a unified six-page site built purely on vanilla web standards. Deployable directly to any static web host or CDN with zero compilation dependencies.
+        </p>
+
+        <div class="case-feature-grid">
+          <div class="case-feature-item">
+            <div class="case-feature-num">FEATURE 01</div>
+            <h3 style="font-size: 1.25rem; margin-bottom: 8px;">Shared Design Tokens</h3>
+            <p style="font-size: 0.95rem; color: var(--text-secondary);">
+              Centralized CSS custom properties governing colors, fluid typography clamp curves, spacing scales, and elevated shadow tokens across all six pages.
+            </p>
+          </div>
+
+          <div class="case-feature-item">
+            <div class="case-feature-num">FEATURE 02</div>
+            <h3 style="font-size: 1.25rem; margin-bottom: 8px;">Reusable Navigation Script</h3>
+            <p style="font-size: 0.95rem; color: var(--text-secondary);">
+              Modular JavaScript controller handling mobile dropdown toggling, active page state detection, and keyboard accessibility without code duplication.
+            </p>
+          </div>
+
+          <div class="case-feature-item">
+            <div class="case-feature-num">FEATURE 03</div>
+            <h3 style="font-size: 1.25rem; margin-bottom: 8px;">Scroll-Reveal Engine</h3>
+            <p style="font-size: 0.95rem; color: var(--text-secondary);">
+              Lightweight IntersectionObserver scroll reveal system adding subtle editorial elegance without dragging down mobile CPU or frame rates.
+            </p>
+          </div>
+
+          <div class="case-feature-item">
+            <div class="case-feature-num">FEATURE 04</div>
+            <h3 style="font-size: 1.25rem; margin-bottom: 8px;">Direct Parent Inquiries</h3>
+            <p style="font-size: 0.95rem; color: var(--text-secondary);">
+              Interactive admissions intake and contact pages that route parent messages directly to school administrative email channels.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Pages and Structure (Visual Sitemap) -->
+      <section class="case-content-block">
+        <span class="section-tag">03 // Architecture</span>
+        <h2 class="case-block-title">Pages &amp; Structure</h2>
+        <p style="font-size: 1.1rem; line-height: 1.7; margin-bottom: 16px;">
+          The 6-page site maps the key parent discovery stages from initial school introduction to formal enrollment:
+        </p>
+        <div class="sitemap-visual">
+          <div class="sitemap-node"><span class="sitemap-node-dot"></span><span>Home (index.html)</span></div>
+          <div class="sitemap-node"><span class="sitemap-node-dot"></span><span>About (about.html)</span></div>
+          <div class="sitemap-node"><span class="sitemap-node-dot"></span><span>Academics (academics.html)</span></div>
+          <div class="sitemap-node"><span class="sitemap-node-dot"></span><span>Admissions (admissions.html)</span></div>
+          <div class="sitemap-node"><span class="sitemap-node-dot"></span><span>Events (events.html)</span></div>
+          <div class="sitemap-node"><span class="sitemap-node-dot"></span><span>Contact (contact.html)</span></div>
+        </div>
+      </section>
+
+      <!-- Tech and Approach -->
+      <section class="case-content-block">
+        <span class="section-tag">04 // Engineering</span>
+        <h2 class="case-block-title">Tech &amp; Approach</h2>
+        <ul style="list-style: square; padding-left: 20px; font-size: 1.05rem; line-height: 1.8; color: var(--text-secondary);">
+          <li><strong>No Build Step:</strong> Directly executable in any browser. Zero npm install, zero vulnerability patches, zero broken lockfiles over time.</li>
+          <li><strong>CSS Grid Layouts:</strong> Dynamic 12-column responsive grids adapting seamlessly from narrow smartphones (360px) to ultra-wide displays.</li>
+          <li><strong>Progressive Enhancement:</strong> Core educational content remains 100% accessible and readable even if JavaScript is disabled.</li>
+          <li><strong>Optimized Asset Loading:</strong> Responsive WebP image tags with descriptive alt attributes and native lazy-loading attributes (`loading="lazy"`).</li>
+        </ul>
+      </section>
+
+      <!-- The Result -->
+      <section class="case-content-block">
+        <span class="section-tag">05 // Outcomes</span>
+        <h2 class="case-block-title">The Result</h2>
+        <p style="font-size: 1.15rem; line-height: 1.75;">
+          A dependable institutional hub that parents and educators praise for simplicity and quick page transitions.
+        </p>
+
+        <div class="result-cards-grid">
+          <div class="result-card">
+            <div class="result-stat">6</div>
+            <div class="result-label">Dedicated Responsive Pages</div>
+          </div>
+          <div class="result-card">
+            <div class="result-stat">&lt; 0.4s</div>
+            <div class="result-label">First Contentful Paint (FCP)</div>
+          </div>
+          <div class="result-card">
+            <div class="result-stat">820+</div>
+            <div class="result-label">Term 1 Prospective Parent Visits</div>
+          </div>
+          <div class="result-card">
+            <div class="result-stat">99.9%</div>
+            <div class="result-label">Static CDN Reliability &amp; Uptime</div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Next Project Link Banner -->
+    <a href="project-elite-touch.html" class="next-project-banner">
+      <div class="container">
+        <div class="next-project-eyebrow">Next Case Study &bull; 03 of 03</div>
+        <div class="next-project-title">
+          <span>Elite Touch Collections</span>
+          <svg class="next-project-arrow" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </div>
+      </div>
+    </a>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <div class="footer-brand-bio">
+          <a href="index.html" class="site-brand" style="margin-bottom: 16px;">
+            <span class="brand-monogram">EL</span>
+            <span>Elliot Lano</span>
+          </a>
+          <p style="font-size: 0.95rem; color: var(--text-secondary);">
+            Frontend Developer building fast, accessible, clean interfaces that make products easier to use and easier to trust.
+          </p>
+        </div>
+
+        <div class="footer-links-group">
+          <div>
+            <div class="footer-col-title">Navigation</div>
+            <ul class="footer-links-list">
+              <li><a href="work.html" class="footer-link">Selected Work</a></li>
+              <li><a href="about.html" class="footer-link">About &amp; Timeline</a></li>
+              <li><a href="services.html" class="footer-link">Services &amp; Process</a></li>
+              <li><a href="contact.html" class="footer-link">Contact</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <div class="footer-col-title">Connect</div>
+            <ul class="footer-links-list">
+              <li><a href="mailto:lanoelliot@gmail.com" class="footer-link">lanoelliot@gmail.com</a></li>
+              <li><a href="https://github.com/kdust2" target="_blank" rel="noopener noreferrer" class="footer-link">GitHub @kdust2</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>&copy; 2026 Elliot Lano. All rights reserved.</div>
+        <button id="back-to-top-btn" class="back-to-top-btn" type="button">
+          <span>Back to top</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"></polyline></svg>
+        </button>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
+  <script type="module" src="/js/main.js"></script>
+</body>
+</html>

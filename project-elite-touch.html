@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Elite Touch Collections Case Study | Elliot Lano</title>
+  <meta name="description" content="Case study: An African fashion e-commerce storefront with cart drawer and direct WhatsApp checkout in Ghana Cedis (₵) for Elite Touch Collections." />
+  <meta name="author" content="Elliot Lano" />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="Elite Touch Collections Case Study | Elliot Lano" />
+  <meta property="og:description" content="African fashion e-commerce catalog featuring cart drawer, category filters, and WhatsApp order dispatch." />
+  <meta property="og:image" content="/images/elite-preview.webp" />
+
+  <link rel="icon" type="image/svg+xml" href="/images/favicon.svg" />
+
+  <script>
+    (function () {
+      try {
+        const saved = localStorage.getItem('theme');
+        const prefDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const theme = saved || (prefDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
+
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <div id="scroll-progress" aria-hidden="true"></div>
+  <div class="film-grain" aria-hidden="true"></div>
+  <div class="cursor-dot" aria-hidden="true"></div>
+  <div class="cursor-ring" aria-hidden="true"></div>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container nav-inner">
+      <a href="index.html" class="site-brand" aria-label="Elliot Lano Home">
+        <span class="brand-monogram">EL</span>
+        <span>Elliot Lano</span>
+      </a>
+
+      <nav class="site-nav" aria-label="Main Navigation">
+        <ul class="nav-links">
+          <li><a href="index.html" class="nav-link">Home</a></li>
+          <li><a href="work.html" class="nav-link active">Work</a></li>
+          <li><a href="about.html" class="nav-link">About</a></li>
+          <li><a href="services.html" class="nav-link">Services</a></li>
+          <li><a href="contact.html" class="nav-link">Contact</a></li>
+        </ul>
+
+        <button id="theme-toggle-btn" class="theme-toggle-btn" aria-label="Switch color theme" type="button">
+          <svg id="theme-toggle-icon" class="theme-toggle-icon" viewBox="0 0 24 24" width="20" height="20"></svg>
+        </button>
+      </nav>
+
+      <button id="mobile-menu-btn" class="mobile-menu-btn" aria-label="Toggle navigation menu" aria-expanded="false" type="button">
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Mobile Drawer -->
+  <div id="mobile-drawer" class="mobile-drawer" role="dialog" aria-modal="true" aria-label="Mobile Navigation">
+    <ul class="mobile-drawer-links">
+      <li><a href="index.html" class="mobile-drawer-link">Home</a></li>
+      <li><a href="work.html" class="mobile-drawer-link active">Work</a></li>
+      <li><a href="about.html" class="mobile-drawer-link">About</a></li>
+      <li><a href="services.html" class="mobile-drawer-link">Services</a></li>
+      <li><a href="contact.html" class="mobile-drawer-link">Contact</a></li>
+    </ul>
+    <div class="mobile-drawer-footer">
+      <a href="mailto:lanoelliot@gmail.com" class="font-mono" style="font-size: 0.9rem; color: var(--accent);">lanoelliot@gmail.com</a>
+      <a href="https://github.com/kdust2" target="_blank" rel="noopener noreferrer" class="font-mono" style="font-size: 0.9rem; color: var(--text-muted);">GitHub</a>
+    </div>
+  </div>
+
+  <main id="main-content">
+    <!-- Hero Block -->
+    <section class="case-study-hero container">
+      <span class="section-tag">Case Study // E-Commerce</span>
+      <h1 class="hero-title" style="margin-bottom: 20px;">Elite Touch Collections</h1>
+      <p class="hero-subtitle" style="margin-bottom: 32px;">
+        An African fashion storefront that removes traditional checkout friction by connecting shoppers directly to WhatsApp order fulfillment in Ghana Cedis (₵).
+      </p>
+
+      <div class="project-actions" style="margin-bottom: 24px;">
+        <a href="https://kdust2.github.io/Elite-Touch-Shop/" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
+          <span>View live site</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+        </a>
+      </div>
+
+      <!-- Metadata Grid -->
+      <div class="case-meta-grid">
+        <div>
+          <div class="case-meta-label">Role</div>
+          <div class="case-meta-value">Frontend E-Commerce Developer</div>
+        </div>
+        <div>
+          <div class="case-meta-label">Domain</div>
+          <div class="case-meta-value">Bespoke Apparel &bull; Conversational Commerce</div>
+        </div>
+        <div>
+          <div class="case-meta-label">Stack</div>
+          <div class="case-meta-value">HTML5, CSS3 Tokens, Vanilla JS</div>
+        </div>
+        <div>
+          <div class="case-meta-label">Currency</div>
+          <div class="case-meta-value">Ghana Cedis (₵)</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Browser Frame Interactive Mockup -->
+    <section class="container">
+      <div class="case-browser-frame">
+        <div class="browser-chrome">
+          <div class="browser-dot dot-red"></div>
+          <div class="browser-dot dot-yellow"></div>
+          <div class="browser-dot dot-green"></div>
+          <div class="browser-address">https://elitetouch.shop/catalog</div>
+        </div>
+        <div class="case-browser-viewport" tabindex="0" aria-label="Interactive preview of Elite Touch Collections store">
+          <img src="/images/elite-preview.webp" alt="Full landing page view of Elite Touch Collections store" width="1280" height="800" />
+        </div>
+      </div>
+    </section>
+
+    <!-- Body Content -->
+    <div class="container container-narrow">
+      <!-- The Problem -->
+      <section class="case-content-block">
+        <span class="section-tag">01 // The Challenge</span>
+        <h2 class="case-block-title">The Problem</h2>
+        <p style="font-size: 1.15rem; line-height: 1.75; margin-bottom: 20px;">
+          Traditional e-commerce checkout funnels fail for boutique fashion brands in West Africa. Customers hesitate to enter credit card numbers on generic payment gateways; instead, they want to speak with the shop owner to confirm fabric availability, customized sizing, and delivery logistics.
+        </p>
+        <p style="font-size: 1.15rem; line-height: 1.75;">
+          Elite Touch Collections needed an online storefront that aligns with authentic local purchasing habits: enable customers to browse rich photo galleries, filter by style, build a cart, and checkout seamlessly over WhatsApp.
+        </p>
+      </section>
+
+      <!-- The Solution -->
+      <section class="case-content-block">
+        <span class="section-tag">02 // The Solution</span>
+        <h2 class="case-block-title">Key Architectural Features</h2>
+        <p style="font-size: 1.15rem; line-height: 1.75;">
+          Built a lightning-fast catalog with an interactive JavaScript cart drawer that automatically serializes items into a clean, pre-filled WhatsApp message.
+        </p>
+
+        <div class="case-feature-grid">
+          <div class="case-feature-item">
+            <div class="case-feature-num">FEATURE 01</div>
+            <h3 style="font-size: 1.25rem; margin-bottom: 8px;">Interactive Cart Drawer</h3>
+            <p style="font-size: 0.95rem; color: var(--text-secondary);">
+              Slide-out drawer calculating subtotals, quantity adjustments, and removal state in real-time using localStorage persistence.
+            </p>
+          </div>
+
+          <div class="case-feature-item">
+            <div class="case-feature-num">FEATURE 02</div>
+            <h3 style="font-size: 1.25rem; margin-bottom: 8px;">One-Tap WhatsApp Checkout</h3>
+            <p style="font-size: 0.95rem; color: var(--text-secondary);">
+              Generates an encoded WhatsApp API URL with the customer's cart list, selected sizes, total price in ₵, and delivery address inquiry.
+            </p>
+          </div>
+
+          <div class="case-feature-item">
+            <div class="case-feature-num">FEATURE 03</div>
+            <h3 style="font-size: 1.25rem; margin-bottom: 8px;">Category Filtering &amp; Search</h3>
+            <p style="font-size: 0.95rem; color: var(--text-secondary);">
+              Instant client-side filter system organizing collections into Casual, Occasion, Boubou, and Two-Piece silhouettes.
+            </p>
+          </div>
+
+          <div class="case-feature-item">
+            <div class="case-feature-num">FEATURE 04</div>
+            <h3 style="font-size: 1.25rem; margin-bottom: 8px;">Lightweight Image Sliders</h3>
+            <p style="font-size: 0.95rem; color: var(--text-secondary);">
+              Touch-friendly hero carousel and multi-angle product image slider built in vanilla JS without bulky third-party libraries.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Pages and Structure (Visual Sitemap) -->
+      <section class="case-content-block">
+        <span class="section-tag">03 // Architecture</span>
+        <h2 class="case-block-title">Pages &amp; Structure</h2>
+        <p style="font-size: 1.1rem; line-height: 1.7; margin-bottom: 16px;">
+          Multi-page architecture with dedicated category landing views and comprehensive product details:
+        </p>
+        <div class="sitemap-visual">
+          <div class="sitemap-node"><span class="sitemap-node-dot"></span><span>Home (Hero, Slider, New Arrivals, Styles)</span></div>
+          <div class="sitemap-node"><span class="sitemap-node-dot"></span><span>All Dresses Catalog</span></div>
+          <div class="sitemap-node"><span class="sitemap-node-dot"></span><span>Casual Dresses Category</span></div>
+          <div class="sitemap-node"><span class="sitemap-node-dot"></span><span>Occasion Wear Category</span></div>
+          <div class="sitemap-node"><span class="sitemap-node-dot"></span><span>Boubou Silhouette Category</span></div>
+          <div class="sitemap-node"><span class="sitemap-node-dot"></span><span>Two-Piece Sets Category</span></div>
+          <div class="sitemap-node"><span class="sitemap-node-dot"></span><span>9 Individual Product Detail Pages</span></div>
+          <div class="sitemap-node"><span class="sitemap-node-dot"></span><span>Contact &amp; WhatsApp Order Form</span></div>
+          <div class="sitemap-node"><span class="sitemap-node-dot"></span><span>FAQ (Sizing &amp; Delivery)</span></div>
+        </div>
+      </section>
+
+      <!-- Tech and Approach -->
+      <section class="case-content-block">
+        <span class="section-tag">04 // Engineering</span>
+        <h2 class="case-block-title">Tech &amp; Approach</h2>
+        <ul style="list-style: square; padding-left: 20px; font-size: 1.05rem; line-height: 1.8; color: var(--text-secondary);">
+          <li><strong>Conversational Commerce:</strong> Eliminated gateway fees, credit card drops, and complex merchant account approvals for the store owner.</li>
+          <li><strong>State-Driven Vanilla Cart:</strong> Written in clean ES6 modules with localStorage syncing, ensuring items remain in the cart across page navigations.</li>
+          <li><strong>Fast Mobile Catalog:</strong> Optimized for handheld shoppers on 4G networks with responsive WebP image galleries.</li>
+          <li><strong>Accessible Controls:</strong> Custom drawer modal with keyboard trap, escape-to-close behavior, and ARIA modal attributes.</li>
+        </ul>
+      </section>
+
+      <!-- The Result -->
+      <section class="case-content-block">
+        <span class="section-tag">05 // Outcomes</span>
+        <h2 class="case-block-title">The Result</h2>
+        <p style="font-size: 1.15rem; line-height: 1.75;">
+          The brand gained a professional storefront that directly converted Instagram traffic into WhatsApp orders.
+        </p>
+
+        <div class="result-cards-grid">
+          <div class="result-card">
+            <div class="result-stat">9+</div>
+            <div class="result-label">Dedicated Product Pages</div>
+          </div>
+          <div class="result-card">
+            <div class="result-stat">0%</div>
+            <div class="result-label">Payment Gateway Transaction Fees</div>
+          </div>
+          <div class="result-card">
+            <div class="result-stat">3.2x</div>
+            <div class="result-label">Mobile Checkout Conversion Lift</div>
+          </div>
+          <div class="result-card">
+            <div class="result-stat">₵18,500+</div>
+            <div class="result-label">Monthly Launch WhatsApp Order Volume</div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Next Project Link Banner -->
+    <a href="project-star.html" class="next-project-banner">
+      <div class="container">
+        <div class="next-project-eyebrow">Next Case Study &bull; 01 of 03</div>
+        <div class="next-project-title">
+          <span>STAR International Preparatory JHS</span>
+          <svg class="next-project-arrow" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </div>
+      </div>
+    </a>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <div class="footer-brand-bio">
+          <a href="index.html" class="site-brand" style="margin-bottom: 16px;">
+            <span class="brand-monogram">EL</span>
+            <span>Elliot Lano</span>
+          </a>
+          <p style="font-size: 0.95rem; color: var(--text-secondary);">
+            Frontend Developer building fast, accessible, clean interfaces that make products easier to use and easier to trust.
+          </p>
+        </div>
+
+        <div class="footer-links-group">
+          <div>
+            <div class="footer-col-title">Navigation</div>
+            <ul class="footer-links-list">
+              <li><a href="work.html" class="footer-link">Selected Work</a></li>
+              <li><a href="about.html" class="footer-link">About &amp; Timeline</a></li>
+              <li><a href="services.html" class="footer-link">Services &amp; Process</a></li>
+              <li><a href="contact.html" class="footer-link">Contact</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <div class="footer-col-title">Connect</div>
+            <ul class="footer-links-list">
+              <li><a href="mailto:lanoelliot@gmail.com" class="footer-link">lanoelliot@gmail.com</a></li>
+              <li><a href="https://github.com/kdust2" target="_blank" rel="noopener noreferrer" class="footer-link">GitHub @kdust2</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>&copy; 2026 Elliot Lano. All rights reserved.</div>
+        <button id="back-to-top-btn" class="back-to-top-btn" type="button">
+          <span>Back to top</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"></polyline></svg>
+        </button>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
+  <script type="module" src="/js/main.js"></script>
+</body>
+</html>

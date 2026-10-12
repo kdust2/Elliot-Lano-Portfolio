@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Services &amp; Process | Elliot Lano Frontend Developer</title>
+  <meta name="description" content="Discover frontend engineering services by Elliot Lano: website development, web app frontends, performance redesigns, and a disciplined 4-step process (Discover, Design, Build, Launch)." />
+  <meta name="author" content="Elliot Lano" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Services &amp; Process | Elliot Lano Frontend Developer" />
+  <meta property="og:description" content="High-performance website development, web app frontends, and redesigns with a disciplined 4-step process." />
+  <meta property="og:image" content="/images/og-image.webp" />
+
+  <link rel="icon" type="image/svg+xml" href="/images/favicon.svg" />
+
+  <script>
+    (function () {
+      try {
+        const saved = localStorage.getItem('theme');
+        const prefDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const theme = saved || (prefDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
+
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <div id="scroll-progress" aria-hidden="true"></div>
+  <div class="film-grain" aria-hidden="true"></div>
+  <div class="cursor-dot" aria-hidden="true"></div>
+  <div class="cursor-ring" aria-hidden="true"></div>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container nav-inner">
+      <a href="index.html" class="site-brand" aria-label="Elliot Lano Home">
+        <span class="brand-monogram">EL</span>
+        <span>Elliot Lano</span>
+      </a>
+
+      <nav class="site-nav" aria-label="Main Navigation">
+        <ul class="nav-links">
+          <li><a href="index.html" class="nav-link">Home</a></li>
+          <li><a href="work.html" class="nav-link">Work</a></li>
+          <li><a href="about.html" class="nav-link">About</a></li>
+          <li><a href="services.html" class="nav-link active">Services</a></li>
+          <li><a href="contact.html" class="nav-link">Contact</a></li>
+        </ul>
+
+        <button id="theme-toggle-btn" class="theme-toggle-btn" aria-label="Switch color theme" type="button">
+          <svg id="theme-toggle-icon" class="theme-toggle-icon" viewBox="0 0 24 24" width="20" height="20"></svg>
+        </button>
+      </nav>
+
+      <button id="mobile-menu-btn" class="mobile-menu-btn" aria-label="Toggle navigation menu" aria-expanded="false" type="button">
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Mobile Drawer -->
+  <div id="mobile-drawer" class="mobile-drawer" role="dialog" aria-modal="true" aria-label="Mobile Navigation">
+    <ul class="mobile-drawer-links">
+      <li><a href="index.html" class="mobile-drawer-link">Home</a></li>
+      <li><a href="work.html" class="mobile-drawer-link">Work</a></li>
+      <li><a href="about.html" class="mobile-drawer-link">About</a></li>
+      <li><a href="services.html" class="mobile-drawer-link active">Services</a></li>
+      <li><a href="contact.html" class="mobile-drawer-link">Contact</a></li>
+    </ul>
+    <div class="mobile-drawer-footer">
+      <a href="mailto:lanoelliot@gmail.com" class="font-mono" style="font-size: 0.9rem; color: var(--accent);">lanoelliot@gmail.com</a>
+      <a href="https://github.com/kdust2" target="_blank" rel="noopener noreferrer" class="font-mono" style="font-size: 0.9rem; color: var(--text-muted);">GitHub</a>
+    </div>
+  </div>
+
+  <main id="main-content" class="section container" style="padding-top: calc(var(--header-height) + 60px);">
+    <div class="section-header">
+      <span class="section-tag">Services &amp; Capabilities</span>
+      <h1 class="section-title">What I Offer</h1>
+      <p class="section-desc">
+        Direct, reliable frontend engineering tailored to founders, marketing leads, and design teams who value speed, accessibility, and high visual standards.
+      </p>
+    </div>
+
+    <!-- 4 Main Service Offerings -->
+    <div class="services-grid" style="margin-bottom: 96px;">
+      <div class="service-card">
+        <div class="service-num">01 // PRODUCTION</div>
+        <h2 class="service-title">Website Development</h2>
+        <p class="service-desc" style="margin-bottom: 20px;">
+          Bespoke marketing sites, portfolio platforms, and multi-page corporate portals. Clean semantic markup, structured SEO data, and lightning-fast load times across global CDNs.
+        </p>
+        <ul style="font-size: 0.875rem; color: var(--text-secondary); list-style: square; padding-left: 18px; line-height: 1.7;">
+          <li>Responsive layouts (mobile, tablet, desktop)</li>
+          <li>Core Web Vitals &amp; 90+ Lighthouse audits</li>
+          <li>OpenGraph metadata &amp; Schema.org JSON-LD</li>
+        </ul>
+      </div>
+
+      <div class="service-card">
+        <div class="service-num">02 // REACT &amp; SPA</div>
+        <h2 class="service-title">Web App Frontends</h2>
+        <p class="service-desc" style="margin-bottom: 20px;">
+          Interactive web applications built with React, TypeScript, and modern state patterns. Modular component architectures that make future feature additions straightforward.
+        </p>
+        <ul style="font-size: 0.875rem; color: var(--text-secondary); list-style: square; padding-left: 18px; line-height: 1.7;">
+          <li>Clean TypeScript interfaces &amp; strict typing</li>
+          <li>REST API data ingestion &amp; error states</li>
+          <li>Predictable state management &amp; client routing</li>
+        </ul>
+      </div>
+
+      <div class="service-card">
+        <div class="service-num">03 // REVAMP</div>
+        <h2 class="service-title">Redesign &amp; Optimization</h2>
+        <p class="service-desc" style="margin-bottom: 20px;">
+          Transforming slow, clunky web experiences into crisp, accessible interfaces. Eliminating technical debt, shrinking bundle sizes, and tuning CSS for smooth scrolling.
+        </p>
+        <ul style="font-size: 0.875rem; color: var(--text-secondary); list-style: square; padding-left: 18px; line-height: 1.7;">
+          <li>Asset compression &amp; next-gen WebP pipelines</li>
+          <li>WCAG 2.1 AA accessibility remediation</li>
+          <li>Elimination of layout shifts (CLS &lt; 0.05)</li>
+        </ul>
+      </div>
+
+      <div class="service-card">
+        <div class="service-num">04 // COLLABORATION</div>
+        <h2 class="service-title">Frontend Support for Teams</h2>
+        <p class="service-desc" style="margin-bottom: 20px;">
+          Plug-and-play frontend bandwidth for creative agencies and engineering teams facing tight launch deadlines. Pixel-perfect translation of Figma prototypes into clean code.
+        </p>
+        <ul style="font-size: 0.875rem; color: var(--text-secondary); list-style: square; padding-left: 18px; line-height: 1.7;">
+          <li>Disciplined Git branching &amp; pull requests</li>
+          <li>Design system token consistency</li>
+          <li>Daily asynchronous check-ins &amp; clear communication</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 4-Step Process Section -->
+    <div class="section-header">
+      <span class="section-tag">How I Work</span>
+      <h2 class="section-title">A Disciplined, Transparent Process</h2>
+      <p class="section-desc">
+        Every project follows four structured phases to eliminate surprises and guarantee on-time delivery.
+      </p>
+    </div>
+
+    <div class="process-grid">
+      <!-- Step 1: Discover -->
+      <div class="process-step">
+        <div class="process-step-num">01</div>
+        <h3 class="process-step-title">Discover</h3>
+        <p style="font-size: 0.95rem; color: var(--text-secondary); line-height: 1.6;">
+          We clarify your goals, audience personas, content structure, and technical constraints. I ask the questions that avoid rework later.
+        </p>
+      </div>
+
+      <!-- Step 2: Design -->
+      <div class="process-step">
+        <div class="process-step-num">02</div>
+        <h3 class="process-step-title">Design</h3>
+        <p style="font-size: 0.95rem; color: var(--text-secondary); line-height: 1.6;">
+          Establishing typography hierarchies, color contrast tokens, fluid grid scales, and interactive motion rules before writing code.
+        </p>
+      </div>
+
+      <!-- Step 3: Build -->
+      <div class="process-step">
+        <div class="process-step-num">03</div>
+        <h3 class="process-step-title">Build</h3>
+        <p style="font-size: 0.95rem; color: var(--text-secondary); line-height: 1.6;">
+          Writing semantic, accessible, and performant code. Iterative milestones with live preview links so you see tangible progress every week.
+        </p>
+      </div>
+
+      <!-- Step 4: Launch -->
+      <div class="process-step">
+        <div class="process-step-num">04</div>
+        <h3 class="process-step-title">Launch</h3>
+        <p style="font-size: 0.95rem; color: var(--text-secondary); line-height: 1.6;">
+          Cross-browser testing, accessibility audit checks, DNS configuration, and documentation handover so your team stays in control.
+        </p>
+      </div>
+    </div>
+
+    <!-- CTA Box -->
+    <div style="margin-top: 96px; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: clamp(32px, 6vw, 64px); text-align: center;">
+      <h2 style="font-size: clamp(2rem, 4vw, 3rem); margin-bottom: 16px;">Ready to start your next project?</h2>
+      <p style="font-size: 1.15rem; color: var(--text-secondary); max-width: 600px; margin: 0 auto 32px auto;">
+        Whether you have a full Figma design or just a brief on a napkin, I'll help you map the fastest path to a polished release.
+      </p>
+      <div style="display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;">
+        <a href="mailto:lanoelliot@gmail.com" class="btn btn-primary">
+          <span>Email me directly</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+        </a>
+        <a href="contact.html" class="btn btn-secondary">
+          <span>Go to contact form</span>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <div class="footer-brand-bio">
+          <a href="index.html" class="site-brand" style="margin-bottom: 16px;">
+            <span class="brand-monogram">EL</span>
+            <span>Elliot Lano</span>
+          </a>
+          <p style="font-size: 0.95rem; color: var(--text-secondary);">
+            Frontend Developer building fast, accessible, clean interfaces that make products easier to use and easier to trust.
+          </p>
+        </div>
+
+        <div class="footer-links-group">
+          <div>
+            <div class="footer-col-title">Navigation</div>
+            <ul class="footer-links-list">
+              <li><a href="work.html" class="footer-link">Selected Work</a></li>
+              <li><a href="about.html" class="footer-link">About &amp; Timeline</a></li>
+              <li><a href="services.html" class="footer-link">Services &amp; Process</a></li>
+              <li><a href="contact.html" class="footer-link">Contact</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <div class="footer-col-title">Connect</div>
+            <ul class="footer-links-list">
+              <li><a href="mailto:lanoelliot@gmail.com" class="footer-link">lanoelliot@gmail.com</a></li>
+              <li><a href="https://github.com/kdust2" target="_blank" rel="noopener noreferrer" class="footer-link">GitHub @kdust2</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>&copy; 2026 Elliot Lano. All rights reserved.</div>
+        <button id="back-to-top-btn" class="back-to-top-btn" type="button">
+          <span>Back to top</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"></polyline></svg>
+        </button>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
+  <script type="module" src="/js/main.js"></script>
+</body>
+</html>

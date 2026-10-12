@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>404 Page Not Found | Elliot Lano</title>
+  <meta name="description" content="The page you were looking for does not exist or has been relocated." />
+  <meta name="author" content="Elliot Lano" />
+
+  <link rel="icon" type="image/svg+xml" href="/images/favicon.svg" />
+
+  <script>
+    (function () {
+      try {
+        const saved = localStorage.getItem('theme');
+        const prefDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const theme = saved || (prefDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
+
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <div id="scroll-progress" aria-hidden="true"></div>
+  <div class="film-grain" aria-hidden="true"></div>
+  <div class="cursor-dot" aria-hidden="true"></div>
+  <div class="cursor-ring" aria-hidden="true"></div>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container nav-inner">
+      <a href="index.html" class="site-brand" aria-label="Elliot Lano Home">
+        <span class="brand-monogram">EL</span>
+        <span>Elliot Lano</span>
+      </a>
+
+      <nav class="site-nav" aria-label="Main Navigation">
+        <ul class="nav-links">
+          <li><a href="index.html" class="nav-link">Home</a></li>
+          <li><a href="work.html" class="nav-link">Work</a></li>
+          <li><a href="about.html" class="nav-link">About</a></li>
+          <li><a href="services.html" class="nav-link">Services</a></li>
+          <li><a href="contact.html" class="nav-link">Contact</a></li>
+        </ul>
+
+        <button id="theme-toggle-btn" class="theme-toggle-btn" aria-label="Switch color theme" type="button">
+          <svg id="theme-toggle-icon" class="theme-toggle-icon" viewBox="0 0 24 24" width="20" height="20"></svg>
+        </button>
+      </nav>
+
+      <button id="mobile-menu-btn" class="mobile-menu-btn" aria-label="Toggle navigation menu" aria-expanded="false" type="button">
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Mobile Drawer -->
+  <div id="mobile-drawer" class="mobile-drawer" role="dialog" aria-modal="true" aria-label="Mobile Navigation">
+    <ul class="mobile-drawer-links">
+      <li><a href="index.html" class="mobile-drawer-link">Home</a></li>
+      <li><a href="work.html" class="mobile-drawer-link">Work</a></li>
+      <li><a href="about.html" class="mobile-drawer-link">About</a></li>
+      <li><a href="services.html" class="mobile-drawer-link">Services</a></li>
+      <li><a href="contact.html" class="mobile-drawer-link">Contact</a></li>
+    </ul>
+    <div class="mobile-drawer-footer">
+      <a href="mailto:lanoelliot@gmail.com" class="font-mono" style="font-size: 0.9rem; color: var(--accent);">lanoelliot@gmail.com</a>
+      <a href="https://github.com/kdust2" target="_blank" rel="noopener noreferrer" class="font-mono" style="font-size: 0.9rem; color: var(--text-muted);">GitHub</a>
+    </div>
+  </div>
+
+  <main id="main-content" class="page-404">
+    <div class="error-code">404</div>
+    <span class="font-mono" style="font-size: 0.85rem; color: var(--accent); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 12px;">OUT_OF_BOUNDS // ROUTE_NOT_FOUND</span>
+    <h1 style="font-size: clamp(2rem, 4vw, 3rem); margin-bottom: 16px;">This page does not exist.</h1>
+    <p style="max-width: 500px; margin-bottom: 32px; color: var(--text-secondary);">
+      The interface coordinates you requested cannot be located. It may have moved or been decommissioned.
+    </p>
+    <a href="index.html" class="btn btn-primary">
+      <span>Return to homepage</span>
+      <svg class="btn-icon-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+    </a>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-bottom" style="border-top: none; padding-top: 0;">
+        <div>&copy; 2026 Elliot Lano. All rights reserved.</div>
+        <button id="back-to-top-btn" class="back-to-top-btn" type="button">
+          <span>Back to top</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"></polyline></svg>
+        </button>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
+  <script type="module" src="/js/main.js"></script>
+</body>
+</html>

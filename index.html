@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <!-- Primary Meta Tags -->
+  <title>Elliot Lano | Frontend Developer &amp; React Specialist</title>
+  <meta name="description" content="Elliot Lano is a frontend developer building fast, accessible, minimal websites and web apps. View projects and get in touch to start yours." />
+  <meta name="keywords" content="frontend developer portfolio, React developer, freelance frontend developer, responsive web design, accessible web development" />
+  <meta name="author" content="Elliot Lano" />
+  <meta name="theme-color" content="#0B0B0C" />
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Elliot Lano | Frontend Developer &amp; React Specialist" />
+  <meta property="og:description" content="Elliot Lano is a frontend developer building fast, accessible, minimal websites and web apps. View projects and get in touch to start yours." />
+  <meta property="og:image" content="/images/og-image.webp" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Elliot Lano | Frontend Developer &amp; React Specialist" />
+  <meta name="twitter:description" content="Elliot Lano is a frontend developer building fast, accessible, minimal websites and web apps. View projects and get in touch to start yours." />
+  <meta name="twitter:image" content="/images/og-image.webp" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="/images/favicon.svg" />
+
+  <!-- Prevent theme flash script -->
+  <script>
+    (function () {
+      try {
+        const saved = localStorage.getItem('theme');
+        const prefDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const theme = saved || (prefDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
+
+  <!-- Schema.org JSON-LD Person Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Elliot Lano",
+    "jobTitle": "Frontend Developer",
+    "email": "mailto:lanoelliot@gmail.com",
+    "url": "https://github.com/kdust2",
+    "sameAs": [
+      "https://github.com/kdust2"
+    ],
+    "description": "Frontend Developer specializing in fast, accessible, and clean web interfaces.",
+    "knowsAbout": [
+      "HTML5",
+      "CSS3",
+      "JavaScript",
+      "TypeScript",
+      "React",
+      "Next.js",
+      "Vite",
+      "Responsive Web Design",
+      "Web Accessibility (WCAG)"
+    ]
+  }
+  </script>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body class="loading">
+  <!-- Skip Link for Accessibility -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- Top Scroll Progress Bar -->
+  <div id="scroll-progress" aria-hidden="true"></div>
+
+  <!-- Film Grain Overlay -->
+  <div class="film-grain" aria-hidden="true"></div>
+
+  <!-- Custom Cursor for Desktop -->
+  <div class="cursor-dot" aria-hidden="true"></div>
+  <div class="cursor-ring" aria-hidden="true"></div>
+
+  <!-- Preloader Curtain -->
+  <div id="preloader" role="status" aria-live="polite">
+    <div class="preloader-top">
+      <span>Elliot Lano</span>
+      <span>Portfolio 2026</span>
+    </div>
+    <div class="preloader-center">
+      <h1 class="preloader-title">Precision<br />Interfaces.</h1>
+      <p class="preloader-status">Preloading cinematic sequence &amp; assets...</p>
+    </div>
+    <div class="preloader-bottom">
+      <div>
+        <div class="preloader-bar-track">
+          <div class="preloader-bar-fill"></div>
+        </div>
+        <span class="font-mono" style="font-size: 0.75rem; color: var(--text-muted);">ACCESSIBLE // SYSTEM ARCHITECTURE</span>
+      </div>
+      <div class="preloader-percent">0%</div>
+    </div>
+  </div>
+
+  <!-- Site Navigation Header -->
+  <header class="site-header">
+    <div class="container nav-inner">
+      <a href="index.html" class="site-brand" aria-label="Elliot Lano Home">
+        <span class="brand-monogram">EL</span>
+        <span>Elliot Lano</span>
+      </a>
+
+      <nav class="site-nav" aria-label="Main Navigation">
+        <ul class="nav-links">
+          <li><a href="index.html" class="nav-link active">Home</a></li>
+          <li><a href="work.html" class="nav-link">Work</a></li>
+          <li><a href="about.html" class="nav-link">About</a></li>
+          <li><a href="services.html" class="nav-link">Services</a></li>
+          <li><a href="contact.html" class="nav-link">Contact</a></li>
+        </ul>
+
+        <!-- Theme Toggle -->
+        <button id="theme-toggle-btn" class="theme-toggle-btn" aria-label="Switch color theme" type="button">
+          <svg id="theme-toggle-icon" class="theme-toggle-icon" viewBox="0 0 24 24" width="20" height="20">
+            <!-- Icon injected by theme.js -->
+          </svg>
+        </button>
+      </nav>
+
+      <!-- Mobile Menu Button -->
+      <button id="mobile-menu-btn" class="mobile-menu-btn" aria-label="Toggle navigation menu" aria-expanded="false" type="button">
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Mobile Drawer -->
+  <div id="mobile-drawer" class="mobile-drawer" role="dialog" aria-modal="true" aria-label="Mobile Navigation">
+    <ul class="mobile-drawer-links">
+      <li><a href="index.html" class="mobile-drawer-link active">Home</a></li>
+      <li><a href="work.html" class="mobile-drawer-link">Work</a></li>
+      <li><a href="about.html" class="mobile-drawer-link">About</a></li>
+      <li><a href="services.html" class="mobile-drawer-link">Services</a></li>
+      <li><a href="contact.html" class="mobile-drawer-link">Contact</a></li>
+    </ul>
+    <div class="mobile-drawer-footer">
+      <div style="display: flex; gap: 16px; align-items: center;">
+        <a href="mailto:lanoelliot@gmail.com" class="font-mono" style="font-size: 0.9rem; color: var(--accent);">lanoelliot@gmail.com</a>
+        <a href="https://github.com/kdust2" target="_blank" rel="noopener noreferrer" class="font-mono" style="font-size: 0.9rem; color: var(--text-muted);">GitHub</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <main id="main-content">
+    <!-- Hero Section -->
+    <section class="hero-section container">
+      <div>
+        <div class="hero-eyebrow">
+          <span class="hero-pulse-dot"></span>
+          <span>Available for select projects &amp; engineering roles</span>
+        </div>
+
+        <h1 class="hero-title">
+          Interfaces that feel <span class="font-editorial" style="color: var(--accent);">effortless.</span>
+        </h1>
+
+        <p class="hero-subtitle">
+          I'm Elliot Lano, a frontend developer who turns ideas into fast, accessible, thoughtfully designed web experiences.
+        </p>
+
+        <div class="hero-actions">
+          <a href="work.html" class="btn btn-primary">
+            <span>View my work</span>
+            <svg class="btn-icon-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </a>
+          <a href="contact.html" class="btn btn-secondary">
+            <span>Get in touch</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="hero-scroll-cue">
+        <div class="scroll-mouse-icon">
+          <div class="scroll-mouse-wheel"></div>
+        </div>
+        <span>Scroll down</span>
+      </div>
+    </section>
+
+    <!-- SECTION 5: SCROLL-DRIVEN FRAME SEQUENCE -->
+    <section id="sequence-wrapper" class="sequence-wrapper" aria-label="Interactive Interface Architecture Sequence">
+      <div class="sequence-sticky-container">
+        <!-- Canvas renders frame sequence or procedural geometry -->
+        <canvas id="sequence-canvas" class="sequence-canvas" role="img" aria-label="Interactive scroll animation showcasing precision interface craft and clean layout architecture"></canvas>
+
+        <!-- Theme-Aware Gradient Masks for Seamless Edge Blending -->
+        <div class="sequence-overlay-top" aria-hidden="true"></div>
+        <div class="sequence-overlay-bottom" aria-hidden="true"></div>
+
+        <!-- Captions Layer synced with scroll progress -->
+        <div class="sequence-captions">
+          <div id="seq-caption-1" class="sequence-caption-item">
+            <div class="sequence-caption-tag">Phase 01 // Craft</div>
+            <h2 class="sequence-caption-title">Design with intent.</h2>
+            <p class="sequence-caption-text">Every pixel serves a clear purpose. Clean structure, generous whitespace, and restrained editorial hierarchy.</p>
+          </div>
+
+          <div id="seq-caption-2" class="sequence-caption-item">
+            <div class="sequence-caption-tag">Phase 02 // Engineering</div>
+            <h2 class="sequence-caption-title">Build with care.</h2>
+            <p class="sequence-caption-text">Fast rendering, semantic markup, zero unnecessary bulk, and rock-solid WCAG accessibility from the foundation up.</p>
+          </div>
+
+          <div id="seq-caption-3" class="sequence-caption-item">
+            <div class="sequence-caption-tag">Phase 03 // Deployment</div>
+            <h2 class="sequence-caption-title">Ship with confidence.</h2>
+            <p class="sequence-caption-text">Tested across slow mobile devices and modern desktop screens. Interfaces that make products easier to trust.</p>
+          </div>
+        </div>
+
+        <!-- Sequence HUD / Progress Indicator -->
+        <div class="sequence-hud" aria-hidden="true">
+          <div class="sequence-counter">
+            <span>FRAME</span>
+            <span class="sequence-frame-num">001</span>
+            <span>/</span>
+            <span class="sequence-total-num">120</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 14px;">
+            <span style="font-size: 0.75rem;">PROGRESS</span>
+            <div class="sequence-progress-track">
+              <div class="sequence-progress-fill"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sequence Live Debug Panel (visible when ?debug in URL) -->
+    <div id="sequence-debug-panel" aria-hidden="true"></div>
+
+    <!-- Selected Work Teaser -->
+    <section class="section container" id="selected-work">
+      <div class="section-header">
+        <span class="section-tag">Selected Work</span>
+        <h2 class="section-title">Projects built for real people &amp; real business needs.</h2>
+        <p class="section-desc">A selection of recent production websites focused on clarity, performance, and conversion.</p>
+      </div>
+
+      <div class="projects-grid">
+        <!-- Project 1: STAR International Preparatory JHS -->
+        <article class="project-card">
+          <div class="project-mockup-wrapper">
+            <div class="browser-chrome">
+              <div class="browser-dot dot-red"></div>
+              <div class="browser-dot dot-yellow"></div>
+              <div class="browser-dot dot-green"></div>
+              <div class="browser-address">starpreparatory.edu.gh</div>
+            </div>
+            <img src="/images/star-preview.webp" alt="STAR International Preparatory JHS Website Preview" class="project-mockup-img" loading="lazy" width="1280" height="800" />
+          </div>
+
+          <div class="project-details">
+            <div class="project-meta-row">
+              <span>Junior High School Institutional Site</span>
+              <span>106+ Commits // CI Workflow</span>
+            </div>
+            <h3 class="project-title">STAR International Preparatory JHS</h3>
+            <p class="project-summary">
+              A credible, accessible multi-page digital home for an established junior high school. Features a complete online application portal, student life showcase, dynamic calendar, and full legal policy compliance.
+            </p>
+            <div class="project-tags">
+              <span class="tag-badge">HTML5</span>
+              <span class="tag-badge">CSS3</span>
+              <span class="tag-badge">JavaScript</span>
+              <span class="tag-badge">GitHub Actions</span>
+              <span class="tag-badge">Responsive Design</span>
+            </div>
+            <div class="project-actions">
+              <a href="project-star.html" class="btn btn-primary btn-sm">
+                <span>Read Full Case Study</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+              </a>
+              <a href="http://kdust2.github.io/STAR-INTERNATIONAL-PREPARATORY-JHS/" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm">
+                <span>View Live Site</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+              </a>
+            </div>
+          </div>
+        </article>
+
+        <!-- Project 2: Treasure International School -->
+        <article class="project-card">
+          <div class="project-mockup-wrapper">
+            <div class="browser-chrome">
+              <div class="browser-dot dot-red"></div>
+              <div class="browser-dot dot-yellow"></div>
+              <div class="browser-dot dot-green"></div>
+              <div class="browser-address">treasureinternationalschool.edu</div>
+            </div>
+            <img src="/images/treasure-preview.webp" alt="Treasure International School Website Preview" class="project-mockup-img" loading="lazy" width="1280" height="800" />
+          </div>
+
+          <div class="project-details">
+            <div class="project-meta-row">
+              <span>Educational Platform</span>
+              <span>Vanilla Architecture</span>
+            </div>
+            <h3 class="project-title">Treasure International School</h3>
+            <p class="project-summary">
+              A polished six-page institutional website presenting academics, admissions guidelines, and school events to parents. Engineered with shared design tokens, a reusable navigation script, and smooth scroll reveals.
+            </p>
+            <div class="project-tags">
+              <span class="tag-badge">HTML5</span>
+              <span class="tag-badge">CSS Grid/Flexbox</span>
+              <span class="tag-badge">Vanilla JS</span>
+              <span class="tag-badge">Zero Build Step</span>
+              <span class="tag-badge">Web Performance</span>
+            </div>
+            <div class="project-actions">
+              <a href="project-treasure.html" class="btn btn-primary btn-sm">
+                <span>Read Full Case Study</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+              </a>
+              <a href="https://kdust2.github.io/Treasure-International-School/" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm">
+                <span>View Live Site</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+              </a>
+            </div>
+          </div>
+        </article>
+
+        <!-- Project 3: Elite Touch Collections -->
+        <article class="project-card">
+          <div class="project-mockup-wrapper">
+            <div class="browser-chrome">
+              <div class="browser-dot dot-red"></div>
+              <div class="browser-dot dot-yellow"></div>
+              <div class="browser-dot dot-green"></div>
+              <div class="browser-address">elitetouch.shop</div>
+            </div>
+            <img src="/images/elite-preview.webp" alt="Elite Touch Collections Fashion E-Commerce Store Preview" class="project-mockup-img" loading="lazy" width="1280" height="800" />
+          </div>
+
+          <div class="project-details">
+            <div class="project-meta-row">
+              <span>Fashion E-Commerce</span>
+              <span>WhatsApp Direct Checkout</span>
+            </div>
+            <h3 class="project-title">Elite Touch Collections</h3>
+            <p class="project-summary">
+              A bespoke African fashion storefront tailored to local buying behavior in Ghana (prices in ₵). Combines catalog filtering, interactive cart drawer, and automated WhatsApp order dispatch without heavyweight checkout hurdles.
+            </p>
+            <div class="project-tags">
+              <span class="tag-badge">E-Commerce</span>
+              <span class="tag-badge">Cart Drawer</span>
+              <span class="tag-badge">WhatsApp API</span>
+              <span class="tag-badge">Ghana Cedis (₵)</span>
+              <span class="tag-badge">Design Tokens</span>
+            </div>
+            <div class="project-actions">
+              <a href="project-elite-touch.html" class="btn btn-primary btn-sm">
+                <span>Read Full Case Study</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+              </a>
+              <a href="https://kdust2.github.io/Elite-Touch-Shop/" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm">
+                <span>View Live Site</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+              </a>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <div style="margin-top: 48px; text-align: center;">
+        <a href="work.html" class="btn btn-secondary">
+          <span>Explore all case studies &amp; breakdowns</span>
+          <svg class="btn-icon-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </a>
+      </div>
+    </section>
+
+    <!-- Infinite Skills Marquee -->
+    <div class="marquee-container" aria-label="Technical skills scroll marquee">
+      <div class="marquee-track">
+        <div class="marquee-item"><span>HTML5 &amp; CSS3</span><span class="marquee-dot"></span></div>
+        <div class="marquee-item"><span>JavaScript (ES6+)</span><span class="marquee-dot"></span></div>
+        <div class="marquee-item"><span>TypeScript</span><span class="marquee-dot"></span></div>
+        <div class="marquee-item"><span>React</span><span class="marquee-dot"></span></div>
+        <div class="marquee-item"><span>Next.js</span><span class="marquee-dot"></span></div>
+        <div class="marquee-item"><span>Tailwind CSS</span><span class="marquee-dot"></span></div>
+        <div class="marquee-item"><span>Responsive Design</span><span class="marquee-dot"></span></div>
+        <div class="marquee-item"><span>WCAG Accessibility</span><span class="marquee-dot"></span></div>
+        <div class="marquee-item"><span>Performance Optimization</span><span class="marquee-dot"></span></div>
+        <div class="marquee-item"><span>REST API Integration</span><span class="marquee-dot"></span></div>
+        <!-- Duplicated items for seamless CSS hardware-accelerated loop -->
+        <div class="marquee-item" aria-hidden="true"><span>HTML5 &amp; CSS3</span><span class="marquee-dot"></span></div>
+        <div class="marquee-item" aria-hidden="true"><span>JavaScript (ES6+)</span><span class="marquee-dot"></span></div>
+        <div class="marquee-item" aria-hidden="true"><span>TypeScript</span><span class="marquee-dot"></span></div>
+        <div class="marquee-item" aria-hidden="true"><span>React</span><span class="marquee-dot"></span></div>
+        <div class="marquee-item" aria-hidden="true"><span>Next.js</span><span class="marquee-dot"></span></div>
+        <div class="marquee-item" aria-hidden="true"><span>Tailwind CSS</span><span class="marquee-dot"></span></div>
+        <div class="marquee-item" aria-hidden="true"><span>Responsive Design</span><span class="marquee-dot"></span></div>
+        <div class="marquee-item" aria-hidden="true"><span>WCAG Accessibility</span><span class="marquee-dot"></span></div>
+        <div class="marquee-item" aria-hidden="true"><span>Performance Optimization</span><span class="marquee-dot"></span></div>
+        <div class="marquee-item" aria-hidden="true"><span>REST API Integration</span><span class="marquee-dot"></span></div>
+      </div>
+    </div>
+
+    <!-- Short About Section -->
+    <section class="section container">
+      <div class="about-grid">
+        <div class="about-photo-wrapper">
+          <!-- REPLACE: Profile photo if available (/images/elliot.jpg) -->
+          <div class="about-monogram-circle">
+            <span class="about-monogram-text">EL</span>
+            <span class="about-monogram-role">Frontend Engineer</span>
+          </div>
+        </div>
+
+        <div>
+          <span class="section-tag">About Me</span>
+          <h2 class="section-title" style="margin-bottom: 24px;">I care about the details because users notice them even when they can't say why.</h2>
+          <p style="margin-bottom: 20px;">
+            I got into frontend development because I like the moment when something confusing becomes obvious. A clean layout, a quick page load, and a button that does what you expect all make a product feel trustworthy. That's the kind of work I want to do.
+          </p>
+          <p style="margin-bottom: 32px;">
+            I build websites and web apps with a focus on performance, accessibility, and clear structure. I work well with designers, founders, and engineers, and I explain my decisions in plain language.
+          </p>
+
+          <a href="about.html" class="btn btn-secondary">
+            <span>Read my story &amp; timeline</span>
+            <svg class="btn-icon-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Services Preview -->
+    <section class="section container" style="border-top: 1px solid var(--border-subtle);">
+      <div class="section-header">
+        <span class="section-tag">What I Offer</span>
+        <h2 class="section-title">Specialized frontend engineering for modern businesses.</h2>
+        <p class="section-desc">Whether you are building from scratch, redesigning for conversion, or scaling an agency team.</p>
+      </div>
+
+      <div class="services-grid">
+        <div class="service-card">
+          <div class="service-num">01 // CORE</div>
+          <h3 class="service-title">Website Development</h3>
+          <p class="service-desc">Marketing websites, landing pages, and institutional sites engineered for high performance, SEO visibility, and rock-solid mobile responsiveness.</p>
+        </div>
+
+        <div class="service-card">
+          <div class="service-num">02 // APPS</div>
+          <h3 class="service-title">Web App Frontends</h3>
+          <p class="service-desc">Scalable, reactive user interfaces built with React, TypeScript, and modern state architectures. Smooth data flows and intuitive interactions.</p>
+        </div>
+
+        <div class="service-card">
+          <div class="service-num">03 // UPGRADE</div>
+          <h3 class="service-title">Redesign &amp; Optimization</h3>
+          <p class="service-desc">Revamping legacy websites to achieve 90+ Lighthouse audits, instant page loads, and WCAG AA accessibility compliance.</p>
+        </div>
+
+        <div class="service-card">
+          <div class="service-num">04 // COLLAB</div>
+          <h3 class="service-title">Frontend Support</h3>
+          <p class="service-desc">Reliable frontend bandwidth for agencies and growing startups. Figma-to-code translation with pixel perfection and clean Git workflows.</p>
+        </div>
+      </div>
+
+      <div style="margin-top: 40px; text-align: center;">
+        <a href="services.html" class="btn btn-secondary">
+          <span>Explore full process &amp; deliverables</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- Contact CTA -->
+    <section class="section container" style="text-align: center;">
+      <div style="max-width: 760px; margin: 0 auto;">
+        <span class="section-tag">Get in Touch</span>
+        <h2 class="section-title" style="margin: 0 auto 20px auto;">Let's build something great.</h2>
+        <p class="section-desc" style="margin: 0 auto 36px auto;">
+          Have a project, a role, or just an idea? I'd love to hear about it. I reply within 24 hours.
+        </p>
+
+        <div style="display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;">
+          <a href="mailto:lanoelliot@gmail.com" class="btn btn-primary">
+            <span>Email me</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+          </a>
+          <a href="contact.html" class="btn btn-secondary">
+            <span>Open contact form</span>
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Site Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <div class="footer-brand-bio">
+          <a href="index.html" class="site-brand" style="margin-bottom: 16px;">
+            <span class="brand-monogram">EL</span>
+            <span>Elliot Lano</span>
+          </a>
+          <p style="font-size: 0.95rem; color: var(--text-secondary);">
+            Frontend Developer building fast, accessible, clean interfaces that make products easier to use and easier to trust.
+          </p>
+        </div>
+
+        <div class="footer-links-group">
+          <div>
+            <div class="footer-col-title">Navigation</div>
+            <ul class="footer-links-list">
+              <li><a href="work.html" class="footer-link">Selected Work</a></li>
+              <li><a href="about.html" class="footer-link">About &amp; Timeline</a></li>
+              <li><a href="services.html" class="footer-link">Services &amp; Process</a></li>
+              <li><a href="contact.html" class="footer-link">Contact</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <div class="footer-col-title">Connect</div>
+            <ul class="footer-links-list">
+              <li><a href="mailto:lanoelliot@gmail.com" class="footer-link">lanoelliot@gmail.com</a></li>
+              <li><a href="https://github.com/kdust2" target="_blank" rel="noopener noreferrer" class="footer-link">GitHub @kdust2</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>&copy; 2026 Elliot Lano. All rights reserved.</div>
+        <button id="back-to-top-btn" class="back-to-top-btn" type="button">
+          <span>Back to top</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"></polyline></svg>
+        </button>
+      </div>
+    </div>
+  </footer>
+
+  <!-- CDN Dependencies: GSAP, ScrollTrigger, Lenis (Pinned stable versions) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
+
+  <!-- Application Modules -->
+  <script type="module" src="/js/main.js"></script>
+</body>
+</html>
