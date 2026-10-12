@@ -17,8 +17,8 @@
   --bg-overlay: rgba(250, 250, 248, 0.94);
 
   --text-primary: #0F0F10;
-  --text-secondary: #383835;
-  --text-muted: #6B6B66;
+  --text-secondary: #222225;
+  --text-muted: #5E5E5A;
   --text-inverse: #FAFAF8;
 
   --border-subtle: rgba(17, 17, 17, 0.09);
@@ -73,8 +73,8 @@
   --bg-overlay: rgba(11, 11, 12, 0.95);
 
   --text-primary: #F8F8F5;
-  --text-secondary: #C4C4BE;
-  --text-muted: #84847E;
+  --text-secondary: #DEDECB;
+  --text-muted: #9E9E96;
   --text-inverse: #0B0B0C;
 
   --border-subtle: rgba(242, 242, 238, 0.09);
@@ -771,8 +771,8 @@ img {
   max-width: 680px;
   text-align: center;
   opacity: 0;
-  transform: translateY(30px);
-  transition: opacity 0.1s linear, transform 0.1s linear;
+  transform: translate3d(0, 30px, 0);
+  will-change: transform, opacity;
 }
 .sequence-caption-tag {
   font-family: var(--font-mono);

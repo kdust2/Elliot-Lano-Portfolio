@@ -8,11 +8,11 @@ export function initSequence(config = {}) {
   const {
     canvas,
     wrapper,
-    path = '/frames/frame_',
+    path = 'frames/frame_',
     ext = '.webp',
     digits = 4,
     frameCount = 120,
-    mobilePath = '/frames/mobile/frame_',
+    mobilePath = 'frames/mobile/frame_',
     mobileFrameCount = 60,
     smoothing = 0.12,
     captions = [],
@@ -32,8 +32,14 @@ export function initSequence(config = {}) {
   }
 
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const isMobile = window.innerWidth <= 768;
-  const activePath = isMobile && mobilePath ? mobilePath : path;
+  const normalizePath = (p) => {
+    if (!p) return 'frames/frame_';
+    return p.startsWith('/') ? '.' + p : p;
+  };
+
+  const cleanPath = normalizePath(path);
+  const cleanMobilePath = normalizePath(mobilePath);
+  const activePath = isMobile && cleanMobilePath ? cleanMobilePath : cleanPath;
   const activeCount = isMobile && mobileFrameCount ? mobileFrameCount : frameCount;
 
   // Debug mode: enabled if URL has ?debug
@@ -451,12 +457,16 @@ export function initSequence(config = {}) {
   // Preload initial frames
   preloadFrames();
 
+  // Refresh dimensions when page completely loads fonts and assets
+  window.addEventListener('load', measureDimensions, { once: true });
+
   // IntersectionObserver to conserve GPU and battery
   const observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
         isIntersecting = entry.isIntersecting;
         if (isIntersecting) {
+          measureDimensions();
           updateScroll();
         }
       });

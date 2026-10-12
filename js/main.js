@@ -29,11 +29,11 @@ document.addEventListener('DOMContentLoaded', () => {
     sequenceInstance = initSequence({
       canvas: sequenceCanvas,
       wrapper: sequenceWrapper,
-      path: '/frames/frame_',
+      path: 'frames/frame_',
       ext: '.webp',
       digits: 4,
       frameCount: 120,
-      mobilePath: '/frames/mobile/frame_',
+      mobilePath: 'frames/mobile/frame_',
       mobileFrameCount: 60,
       smoothing: 0.12,
       captions: [

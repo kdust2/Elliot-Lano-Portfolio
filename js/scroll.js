@@ -18,14 +18,14 @@ export function initScroll() {
   // Check if Lenis is loaded via CDN
   if (typeof window.Lenis === 'function') {
     lenisInstance = new window.Lenis({
-      duration: 1.2,
+      duration: 1.0,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // Eased inertia
-      lerp: 0.09,
+      lerp: 0.1,
       orientation: 'vertical',
       gestureOrientation: 'vertical',
       smoothWheel: true,
       wheelMultiplier: 1,
-      touchMultiplier: 1.5,
+      touchMultiplier: 1.0,
       infinite: false
     });
 
@@ -39,7 +39,8 @@ export function initScroll() {
         lenisInstance.raf(time * 1000);
       });
 
-      window.gsap.ticker.lagSmoothing(0);
+      // Smooth lag compensation (do not set to 0, which induces frame-drop stutter)
+      window.gsap.ticker.lagSmoothing(500, 33);
     } else {
       // Standalone rAF loop for Lenis
       function raf(time) {
@@ -54,7 +55,7 @@ export function initScroll() {
   }
 
   initAnchorLinks(lenisInstance);
-  initScrollProgressBar();
+  initScrollProgressBar(lenisInstance);
 
   return lenisInstance;
 }
@@ -109,7 +110,7 @@ function initAnchorLinks(lenis) {
 /**
  * Update top scroll progress bar
  */
-function initScrollProgressBar() {
+function initScrollProgressBar(lenis) {
   const progressBar = document.getElementById('scroll-progress');
   if (!progressBar) return;
 
@@ -120,6 +121,10 @@ function initScrollProgressBar() {
     progressBar.style.width = `${Math.min(100, Math.max(0, progress))}%`;
   }
 
-  window.addEventListener('scroll', updateProgress, { passive: true });
+  if (lenis) {
+    lenis.on('scroll', updateProgress);
+  } else {
+    window.addEventListener('scroll', updateProgress, { passive: true });
+  }
   updateProgress();
 }
