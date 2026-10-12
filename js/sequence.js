@@ -37,6 +37,7 @@ export function initSequence(config = {}) {
     return p.startsWith('/') ? '.' + p : p;
   };
 
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
   const cleanPath = normalizePath(path);
   const cleanMobilePath = normalizePath(mobilePath);
   const activePath = isMobile && cleanMobilePath ? cleanMobilePath : cleanPath;
