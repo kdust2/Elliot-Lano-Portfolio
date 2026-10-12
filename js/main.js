@@ -29,6 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
     sequenceInstance = initSequence({
       canvas: sequenceCanvas,
       wrapper: sequenceWrapper,
+      lenis: lenis,
       path: 'frames/frame_',
       ext: '.webp',
       digits: 4,

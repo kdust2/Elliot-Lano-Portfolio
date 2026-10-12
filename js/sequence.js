@@ -1,20 +1,22 @@
 /**
  * @file sequence.js
- * Scroll-Driven Frame Sequence Module
- * Maps scroll progress to image sequence frames drawn on <canvas>
+ * Scroll-Driven Frame Sequence Engine
+ * Synchronized with Lenis Smooth Scroll and GSAP ScrollTrigger
+ * High-performance 60fps/120fps canvas frame playback with zero layout thrashing
  */
 
 export function initSequence(config = {}) {
   const {
     canvas,
     wrapper,
+    lenis: userLenis = null,
     path = 'frames/frame_',
     ext = '.webp',
     digits = 4,
     frameCount = 120,
     mobilePath = 'frames/mobile/frame_',
     mobileFrameCount = 60,
-    smoothing = 0.12,
+    smoothing = 0.25,
     captions = [],
     onProgress = null,
     onPreloadProgress = null
@@ -25,19 +27,25 @@ export function initSequence(config = {}) {
     return null;
   }
 
-  const ctx = canvas.getContext('2d', { alpha: true });
+  // Request opaque, desynchronized 2D context to maximize compositor throughput
+  const ctx = canvas.getContext('2d', {
+    alpha: false,
+    desynchronized: true
+  }) || canvas.getContext('2d', { alpha: true });
+
   if (!ctx) {
     console.warn('[Sequence] Failed to get 2D context for canvas.');
     return null;
   }
 
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+
   const normalizePath = (p) => {
     if (!p) return 'frames/frame_';
     return p.startsWith('/') ? '.' + p : p;
   };
 
-  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
   const cleanPath = normalizePath(path);
   const cleanMobilePath = normalizePath(mobilePath);
   const activePath = isMobile && cleanMobilePath ? cleanMobilePath : cleanPath;
@@ -58,20 +66,36 @@ export function initSequence(config = {}) {
   let targetFrame = 0;
   let currentFrame = 0;
   let lastDrawnFrame = -1;
+  let lastDrawnImg = null;
   let isIntersecting = false;
   let isRafRunning = false;
   let canvasWidth = 0;
   let canvasHeight = 0;
   let dpr = 1;
 
-  // Cached dimensions to prevent layout thrashing on scroll
+  // Cached dimension metrics
   let cachedWrapperTop = 0;
   let cachedWrapperHeight = 0;
   let cachedViewportHeight = window.innerHeight;
 
+  // Precomputed draw parameters to eliminate per-frame math & layout queries
+  let cachedDrawParams = null;
+
+  function updateDrawParams(iw, ih) {
+    if (!iw || !ih || !canvasWidth || !canvasHeight) return;
+    const cw = canvas.width;
+    const ch = canvas.height;
+    const scale = Math.max(cw / iw, ch / ih);
+    const nw = Math.ceil(iw * scale);
+    const nh = Math.ceil(ih * scale);
+    const dx = Math.floor((cw - nw) / 2);
+    const dy = Math.floor((ch - nh) / 2);
+    cachedDrawParams = { dx, dy, nw, nh, iw, ih };
+  }
+
   function measureDimensions() {
     const rect = wrapper.getBoundingClientRect();
-    cachedWrapperTop = rect.top + window.scrollY;
+    cachedWrapperTop = rect.top + (window.scrollY || document.documentElement.scrollTop);
     cachedWrapperHeight = rect.height;
     cachedViewportHeight = window.innerHeight;
   }
@@ -85,6 +109,11 @@ export function initSequence(config = {}) {
   if (frameTotalEl) {
     frameTotalEl.textContent = String(activeCount).padStart(3, '0');
   }
+
+  // Track caption active states to avoid touching DOM on inactive elements
+  const captionStates = new Array(captions.length).fill(null);
+  let lastHudIdx = -1;
+  let lastProgressPercent = -1;
 
   /**
    * Helper to format zero-padded frame filenames (1-indexed)
@@ -111,7 +140,9 @@ export function initSequence(config = {}) {
     canvas.style.height = `${canvasHeight}px`;
 
     ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = 'high';
+    ctx.imageSmoothingQuality = 'medium';
+
+    cachedDrawParams = null;
 
     // Redraw current frame
     if (lastDrawnFrame >= 0) {
@@ -199,29 +230,31 @@ export function initSequence(config = {}) {
 
   /**
    * Draw an image with "cover" fit on canvas
+   * Bypasses clearRect when drawing opaque images to avoid double GPU writes
    */
   function drawImageCover(img) {
     if (!img) return;
-    const cw = canvas.width;
-    const ch = canvas.height;
     const iw = img.naturalWidth || img.width;
     const ih = img.naturalHeight || img.height;
-
     if (!iw || !ih) return;
 
-    ctx.clearRect(0, 0, cw, ch);
+    if (!cachedDrawParams || cachedDrawParams.iw !== iw || cachedDrawParams.ih !== ih) {
+      updateDrawParams(iw, ih);
+    }
 
-    const scale = Math.max(cw / iw, ch / ih);
-    const nw = iw * scale;
-    const nh = ih * scale;
-    const dx = (cw - nw) / 2;
-    const dy = (ch - nh) / 2;
-
-    ctx.drawImage(img, dx, dy, nw, nh);
+    if (cachedDrawParams) {
+      ctx.drawImage(
+        img,
+        cachedDrawParams.dx,
+        cachedDrawParams.dy,
+        cachedDrawParams.nw,
+        cachedDrawParams.nh
+      );
+    }
   }
 
   /**
-   * Draw frame by index, with fallback to nearest available loaded frame
+   * Draw frame by index with instant fallback to last drawn image (O(1))
    */
   function drawFrame(index, force = false) {
     const clamped = Math.max(0, Math.min(activeCount - 1, index));
@@ -238,21 +271,26 @@ export function initSequence(config = {}) {
 
     let imgToDraw = images[clamped];
 
-    // If target frame not loaded, find nearest loaded frame
-    if (!imgToDraw || !imgToDraw.complete) {
-      let offset = 1;
-      while (offset < activeCount) {
-        const prev = clamped - offset;
-        const next = clamped + offset;
-        if (prev >= 0 && images[prev]?.complete) {
-          imgToDraw = images[prev];
+    if (imgToDraw && imgToDraw.complete) {
+      lastDrawnImg = imgToDraw;
+    } else if (lastDrawnImg) {
+      // Hold last valid frame cleanly to eliminate searching loops
+      imgToDraw = lastDrawnImg;
+    } else {
+      // Fast bounded check within 5 frames during initial boot
+      for (let o = 1; o <= 5; o++) {
+        const p = clamped - o;
+        const n = clamped + o;
+        if (p >= 0 && images[p]?.complete) {
+          imgToDraw = images[p];
+          lastDrawnImg = imgToDraw;
           break;
         }
-        if (next < activeCount && images[next]?.complete) {
-          imgToDraw = images[next];
+        if (n < activeCount && images[n]?.complete) {
+          imgToDraw = images[n];
+          lastDrawnImg = imgToDraw;
           break;
         }
-        offset++;
       }
     }
 
@@ -260,27 +298,29 @@ export function initSequence(config = {}) {
       drawImageCover(imgToDraw);
       lastDrawnFrame = clamped;
     } else {
-      // If no frames ready yet, draw procedural
       drawProcedural(clamped / (activeCount - 1), clamped);
     }
   }
 
   /**
    * Sync captions and progress indicators
+   * Skips updating inactive caption DOM nodes to minimize style recalculation
    */
   function syncUI(progress, currentIdx) {
     // 1. Captions
-    captions.forEach((cap, idx) => {
+    for (let idx = 0; idx < captions.length; idx++) {
+      const cap = captions[idx];
       const el = cap.el || document.getElementById(`seq-caption-${idx + 1}`);
-      if (!el) return;
+      if (!el) continue;
 
       const from = cap.from ?? 0;
       const to = cap.to ?? 1;
       const mid = (from + to) / 2;
       const span = (to - from) / 2;
+      const isActive = progress >= from && progress <= to;
 
-      if (progress >= from && progress <= to) {
-        // Fade in toward mid, fade out toward to
+      if (isActive) {
+        captionStates[idx] = true;
         const dist = Math.abs(progress - mid);
         const normDist = 1 - Math.min(1, dist / span);
         const opacity = Math.min(1, normDist * 1.5);
@@ -289,22 +329,30 @@ export function initSequence(config = {}) {
         el.style.opacity = opacity.toFixed(3);
         el.style.transform = `translate3d(0, ${translateY.toFixed(1)}px, 0)`;
         el.style.pointerEvents = opacity > 0.5 ? 'auto' : 'none';
-      } else {
+      } else if (captionStates[idx] !== false) {
+        captionStates[idx] = false;
         el.style.opacity = '0';
         el.style.transform = 'translate3d(0, 25px, 0)';
         el.style.pointerEvents = 'none';
       }
-    });
+    }
 
-    // 2. HUD Counter & Progress Bar
-    if (frameNumEl) {
+    // 2. HUD Counter
+    if (frameNumEl && currentIdx !== lastHudIdx) {
       frameNumEl.textContent = String(currentIdx + 1).padStart(3, '0');
-    }
-    if (progressFillEl) {
-      progressFillEl.style.width = `${(progress * 100).toFixed(1)}%`;
+      lastHudIdx = currentIdx;
     }
 
-    // 3. Debug Panel
+    // 3. Progress fill
+    if (progressFillEl) {
+      const pct = Math.round(progress * 1000) / 10;
+      if (pct !== lastProgressPercent) {
+        progressFillEl.style.width = `${pct}%`;
+        lastProgressPercent = pct;
+      }
+    }
+
+    // 4. Debug Panel
     if (isDebug && debugPanel) {
       debugPanel.innerHTML = `
         <strong>[SEQUENCE DEBUG]</strong><br/>
@@ -323,8 +371,14 @@ export function initSequence(config = {}) {
     }
   }
 
+  // Determine smooth scroller presence
+  const lenisInstance = userLenis || (typeof window !== 'undefined' ? window.lenis : null);
+  // When Lenis handles inertia, use snappy 0.35 smoothing to avoid lagging behind scroll.
+  // When on native un-eased wheel scrolling, use 0.20 for smooth interpolation.
+  const effectiveSmoothing = lenisInstance ? 0.35 : (smoothing || 0.2);
+
   /**
-   * Main rAF loop: runs only while moving and when intersecting
+   * Optimized rAF rendering loop: runs ONLY while moving and stops immediately when settled
    */
   function startRafLoop() {
     if (isRafRunning) return;
@@ -336,9 +390,14 @@ export function initSequence(config = {}) {
         return;
       }
 
-      // Lerp toward target
       const delta = targetFrame - currentFrame;
-      currentFrame += delta * smoothing;
+
+      // Settle if difference is negligible
+      if (Math.abs(delta) < 0.02) {
+        currentFrame = targetFrame;
+      } else {
+        currentFrame += delta * effectiveSmoothing;
+      }
 
       const frameIdx = Math.max(0, Math.min(activeCount - 1, Math.round(currentFrame)));
       const progress = frameIdx / (activeCount - 1);
@@ -348,32 +407,24 @@ export function initSequence(config = {}) {
         syncUI(progress, frameIdx);
       }
 
-      // Check if settled
-      if (Math.abs(delta) < 0.005) {
-        currentFrame = targetFrame;
+      // Continue rAF loop only if still moving
+      if (currentFrame !== targetFrame) {
+        requestAnimationFrame(step);
+      } else {
         isRafRunning = false;
-        return;
       }
-
-      requestAnimationFrame(step);
     }
 
     requestAnimationFrame(step);
   }
 
   /**
-   * Calculate scroll progress through the sequence section using cached measurements
+   * Apply scroll progress directly to target frame
    */
-  function updateScroll() {
+  function applyScrollProgress(progress) {
     if (prefersReducedMotion) return;
-    if (!isIntersecting) return;
-
-    const scrollY = window.scrollY || document.documentElement.scrollTop;
-    const maxScroll = cachedWrapperHeight - cachedViewportHeight;
-    const rawProgress = maxScroll > 0 ? (scrollY - cachedWrapperTop) / maxScroll : 0;
-    const progress = Math.max(0, Math.min(1, rawProgress));
-
-    targetFrame = progress * (activeCount - 1);
+    const clamped = Math.max(0, Math.min(1, progress));
+    targetFrame = clamped * (activeCount - 1);
 
     if (!isRafRunning) {
       startRafLoop();
@@ -381,7 +432,56 @@ export function initSequence(config = {}) {
   }
 
   /**
-   * Preload frames in batches of 8 using Image + decode()
+   * Calculate scroll progress through the sequence section using cached measurements
+   */
+  function calculateFromScrollY(scrollY) {
+    const maxScroll = cachedWrapperHeight - cachedViewportHeight;
+    const rawProgress = maxScroll > 0 ? (scrollY - cachedWrapperTop) / maxScroll : 0;
+    applyScrollProgress(rawProgress);
+  }
+
+  // --- Scroll & ScrollTrigger Integration ---
+  let scrollTriggerInstance = null;
+
+  // 1. GSAP ScrollTrigger synchronization
+  if (typeof window !== 'undefined' && window.ScrollTrigger) {
+    scrollTriggerInstance = window.ScrollTrigger.create({
+      trigger: wrapper,
+      start: 'top top',
+      end: 'bottom bottom',
+      scrub: true,
+      onUpdate: (self) => {
+        if (!isIntersecting) return;
+        applyScrollProgress(self.progress);
+      },
+      onRefresh: () => {
+        measureDimensions();
+      }
+    });
+  }
+
+  // 2. Lenis scroll listener (acts as primary if ScrollTrigger is not registered)
+  function handleLenisScroll(e) {
+    if (scrollTriggerInstance) return; // ScrollTrigger updates automatically via Lenis ticker
+    if (!isIntersecting) return;
+    const scrollY = typeof e.scroll === 'number' ? e.scroll : window.scrollY;
+    calculateFromScrollY(scrollY);
+  }
+
+  if (lenisInstance) {
+    lenisInstance.on('scroll', handleLenisScroll);
+  }
+
+  // 3. Native window scroll listener (fallback)
+  function handleWindowScroll() {
+    if (scrollTriggerInstance || lenisInstance) return;
+    if (!isIntersecting) return;
+    calculateFromScrollY(window.scrollY || document.documentElement.scrollTop);
+  }
+  window.addEventListener('scroll', handleWindowScroll, { passive: true });
+
+  /**
+   * Preload frames in batches of 8 using Image + decode() off the main thread
    */
   async function preloadFrames() {
     // 1. Immediately load frame 0 (poster)
@@ -390,26 +490,30 @@ export function initSequence(config = {}) {
 
     const onPosterReady = () => {
       images[0] = poster;
+      lastDrawnImg = poster;
       loadedCount++;
       drawFrame(0);
       syncUI(0, 0);
       reportPreloadProgress();
     };
 
-    poster.onload = onPosterReady;
+    poster.onload = async () => {
+      try {
+        if (poster.decode) {
+          await poster.decode();
+        }
+      } catch {
+        // Ignore decode rejection
+      }
+      onPosterReady();
+    };
+
     poster.onerror = () => {
       console.warn(`[Sequence] Poster frame 404 at ${poster.src}. Switching to procedural canvas renderer.`);
       hasFallbackMode = true;
       drawProcedural(0, 0);
       reportPreloadProgress(1);
     };
-
-    try {
-      await poster.decode();
-      onPosterReady();
-    } catch {
-      // Ignore if decode rejected, onload/onerror handles it
-    }
 
     if (hasFallbackMode) return;
 
@@ -425,17 +529,22 @@ export function initSequence(config = {}) {
         return new Promise((resolve) => {
           const img = new Image();
           img.src = getFrameSrc(idx);
-          img.onload = () => {
+          img.onload = async () => {
+            try {
+              if (img.decode) {
+                await img.decode();
+              }
+            } catch {
+              // Ignore decode rejection
+            }
             images[idx] = img;
             loadedCount++;
             reportPreloadProgress();
             resolve();
           };
           img.onerror = () => {
-            // Fail gracefully
             resolve();
           };
-          img.decode?.().catch(() => {});
         });
       });
       await Promise.all(promises);
@@ -455,36 +564,69 @@ export function initSequence(config = {}) {
     window.dispatchEvent(new CustomEvent('sequence-preload-progress', { detail: { ratio } }));
   }
 
-  // Preload initial frames
   preloadFrames();
 
   // Refresh dimensions when page completely loads fonts and assets
   window.addEventListener('load', measureDimensions, { once: true });
 
-  // IntersectionObserver to conserve GPU and battery
+  // Optimized IntersectionObserver with 600px margin and reflow-free bounding rect
   const observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
         isIntersecting = entry.isIntersecting;
         if (isIntersecting) {
-          measureDimensions();
-          updateScroll();
+          // Read precomputed boundingClientRect from observer entry (zero DOM reflow!)
+          if (entry.boundingClientRect) {
+            const scrollY = window.scrollY || document.documentElement.scrollTop;
+            cachedWrapperTop = entry.boundingClientRect.top + scrollY;
+            cachedWrapperHeight = entry.boundingClientRect.height || wrapper.offsetHeight;
+            cachedViewportHeight = window.innerHeight;
+            if (cachedDrawParams) {
+              updateDrawParams(cachedDrawParams.iw, cachedDrawParams.ih);
+            }
+          } else {
+            measureDimensions();
+          }
+
+          if (scrollTriggerInstance) {
+            scrollTriggerInstance.refresh();
+          } else if (lenisInstance) {
+            calculateFromScrollY(lenisInstance.scroll || window.scrollY);
+          } else {
+            calculateFromScrollY(window.scrollY || document.documentElement.scrollTop);
+          }
+        } else {
+          // Offscreen: halt loop to conserve GPU/battery
+          isRafRunning = false;
+
+          // Settle clean boundary states
+          const scrollY = window.scrollY || document.documentElement.scrollTop;
+          if (cachedWrapperTop > 0) {
+            if (scrollY < cachedWrapperTop) {
+              targetFrame = 0;
+              currentFrame = 0;
+              drawFrame(0);
+              syncUI(0, 0);
+            } else if (scrollY > cachedWrapperTop + cachedWrapperHeight - cachedViewportHeight) {
+              targetFrame = activeCount - 1;
+              currentFrame = activeCount - 1;
+              drawFrame(activeCount - 1);
+              syncUI(1, activeCount - 1);
+            }
+          }
         }
       });
     },
-    { rootMargin: '200px 0px 200px 0px' }
+    { rootMargin: '600px 0px 600px 0px', threshold: [0] }
   );
   observer.observe(wrapper);
 
-  // Hook scroll updates into Lenis or window scroll
-  window.addEventListener('scroll', updateScroll, { passive: true });
-
-  // Listen to theme changes to redraw procedural or refresh canvas
+  // Redraw when theme flips
   window.addEventListener('themechanged', () => {
-    drawFrame(Math.round(currentFrame));
+    drawFrame(Math.round(currentFrame), true);
   });
 
-  // Reduced motion: draw poster frame once and return
+  // Reduced motion handling
   if (prefersReducedMotion) {
     drawFrame(0);
     syncUI(0, 0);
@@ -497,9 +639,23 @@ export function initSequence(config = {}) {
     destroy: () => {
       observer.disconnect();
       resizeObserver.disconnect();
-      window.removeEventListener('scroll', updateScroll);
+      if (scrollTriggerInstance) {
+        scrollTriggerInstance.kill();
+      }
+      if (lenisInstance) {
+        lenisInstance.off('scroll', handleLenisScroll);
+      }
+      window.removeEventListener('scroll', handleWindowScroll);
+      window.removeEventListener('resize', handleResize);
     },
-    update: updateScroll,
+    update: () => {
+      measureDimensions();
+      if (scrollTriggerInstance) {
+        scrollTriggerInstance.refresh();
+      } else {
+        calculateFromScrollY(window.scrollY || document.documentElement.scrollTop);
+      }
+    },
     getLoadedRatio: () => loadedCount / activeCount
   };
 }

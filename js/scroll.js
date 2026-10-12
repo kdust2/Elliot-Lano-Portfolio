@@ -29,6 +29,9 @@ export function initScroll() {
       infinite: false
     });
 
+    // Expose globally for cross-module coordination
+    window.lenis = lenisInstance;
+
     // Synchronize Lenis with GSAP ScrollTrigger ticker if GSAP is available
     if (window.gsap && window.ScrollTrigger) {
       window.gsap.registerPlugin(window.ScrollTrigger);
@@ -39,8 +42,8 @@ export function initScroll() {
         lenisInstance.raf(time * 1000);
       });
 
-      // Smooth lag compensation (do not set to 0, which induces frame-drop stutter)
-      window.gsap.ticker.lagSmoothing(500, 33);
+      // Disable lagSmoothing in GSAP ticker so scroll physics and ScrollTrigger remain strictly locked 1:1
+      window.gsap.ticker.lagSmoothing(0);
     } else {
       // Standalone rAF loop for Lenis
       function raf(time) {
@@ -114,11 +117,17 @@ function initScrollProgressBar(lenis) {
   const progressBar = document.getElementById('scroll-progress');
   if (!progressBar) return;
 
+  let isTicking = false;
   function updateProgress() {
-    const scrollTop = window.scrollY || document.documentElement.scrollTop;
-    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-    const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
-    progressBar.style.width = `${Math.min(100, Math.max(0, progress))}%`;
+    if (isTicking) return;
+    isTicking = true;
+    requestAnimationFrame(() => {
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+      progressBar.style.width = `${Math.min(100, Math.max(0, progress))}%`;
+      isTicking = false;
+    });
   }
 
   if (lenis) {
