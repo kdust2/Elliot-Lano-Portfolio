@@ -666,45 +666,6 @@ img {
   gap: 16px;
   flex-wrap: wrap;
 }
-.hero-scroll-cue {
-  position: absolute;
-  bottom: 30px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  color: var(--text-muted);
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-.scroll-mouse-icon {
-  width: 20px;
-  height: 32px;
-  border: 2px solid var(--border-medium);
-  border-radius: 12px;
-  position: relative;
-}
-.scroll-mouse-wheel {
-  position: absolute;
-  top: 6px;
-  left: 50%;
-  width: 3px;
-  height: 6px;
-  background-color: var(--accent);
-  border-radius: 2px;
-  transform: translateX(-50%);
-  animation: mouseWheel 1.8s infinite;
-}
-@keyframes mouseWheel {
-  0% { opacity: 1; transform: translate(-50%, 0); }
-  80% { opacity: 0; transform: translate(-50%, 12px); }
-  100% { opacity: 0; transform: translate(-50%, 0); }
-}
-
 /* --- Section 5: Scroll-Driven Frame Sequence --- */
 .sequence-wrapper {
   position: relative;
@@ -767,6 +728,11 @@ img {
 }
 .sequence-caption-item {
   position: absolute;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  bottom: clamp(96px, 14vh, 140px);
+  width: calc(100% - 2 * clamp(20px, 4vw, 40px));
   max-width: 680px;
   text-align: center;
   opacity: 0;
@@ -1068,14 +1034,21 @@ img {
   gap: clamp(40px, 6vw, 80px);
   align-items: start;
 }
+.about-photo-wrapper {
+  position: sticky;
+  top: 120px;
+}
 @media (max-width: 900px) {
   .about-grid {
     grid-template-columns: 1fr;
   }
-}
-.about-photo-wrapper {
-  position: sticky;
-  top: 120px;
+  /* Single column: sticky would pin the portrait/card over the story text */
+  .about-photo-wrapper {
+    position: static;
+  }
+  .about-monogram-circle {
+    max-width: 260px;
+  }
 }
 .about-monogram-circle {
   aspect-ratio: 1;
@@ -1665,3 +1638,9 @@ html.lenis, html.lenis body { height: auto; }
 .whatsapp-float:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
 @media (max-width: 640px) { .whatsapp-float-label { display: none; } .whatsapp-float { padding: 14px; } }
 @media print { .whatsapp-float { display: none; } }
+
+/* Small screens: keep the HUD clear of the WhatsApp button */
+@media (max-width: 640px) {
+  .sequence-hud-progress { display: none !important; }
+  .sequence-hud { right: 90px; }
+}

@@ -162,70 +162,319 @@ export function initSequence(config = {}) {
   handleResize();
 
   /**
-   * Procedural Fallback Animation:
-   * Used if frames fail to load (404) so section remains visually stunning.
+   * Web-development scene, drawn procedurally and driven by scroll progress (0..1):
+   *   0.00-0.33  wireframe assembles in a browser window
+   *   0.33-0.67  the window turns into an editor and HTML/CSS types itself out
+   *   0.67-1.00  the finished page appears, a phone version slides in (responsive)
+   *              and Lighthouse-style scores fill up to 100
    */
-  function drawProcedural(progress, frameIdx) {
-    const w = canvas.width;
-    const h = canvas.height;
-    ctx.clearRect(0, 0, w, h);
+  const CODE_LINES = [
+    [['<section ', 'tag'], ['class=', 'attr'], ['"hero"', 'str'], ['>', 'tag']],
+    [['  <h1>', 'tag'], ['Interfaces that feel effortless', 'plain'], ['</h1>', 'tag']],
+    [['  <a ', 'tag'], ['class=', 'attr'], ['"btn" ', 'str'], ['href=', 'attr'], ['"#work"', 'str'], ['>', 'tag'], ['View work', 'plain'], ['</a>', 'tag']],
+    [['</section>', 'tag']],
+    [['.hero ', 'prop'], ['{ ', 'plain'], ['display', 'attr'], [': grid; ', 'val'], ['gap', 'attr'], [': 2rem; ', 'val'], ['}', 'plain']],
+    [['.btn ', 'prop'], ['{ ', 'plain'], ['background', 'attr'], [': var(--accent); ', 'val'], ['}', 'plain']],
+    [['@media ', 'tag'], ['(max-width: 768px) ', 'val'], ['{', 'plain']],
+    [['  .hero ', 'prop'], ['{ ', 'plain'], ['grid-template-columns', 'attr'], [': 1fr; ', 'val'], ['}', 'plain']],
+    [['}', 'plain']]
+  ];
+  const CODE_TOTAL = CODE_LINES.reduce((n, l) => n + l.reduce((m, seg) => m + seg[0].length, 0), 0);
 
+  const clamp01 = (v) => Math.max(0, Math.min(1, v));
+  const smooth = (a, b, v) => {
+    const t = clamp01((v - a) / (b - a));
+    return t * t * (3 - 2 * t);
+  };
+
+  function rrect(x, y, w, h, r) {
+    const rr = Math.max(0, Math.min(r, w / 2, h / 2));
+    ctx.beginPath();
+    ctx.moveTo(x + rr, y);
+    ctx.lineTo(x + w - rr, y);
+    ctx.arcTo(x + w, y, x + w, y + rr, rr);
+    ctx.lineTo(x + w, y + h - rr);
+    ctx.arcTo(x + w, y + h, x + w - rr, y + h, rr);
+    ctx.lineTo(x + rr, y + h);
+    ctx.arcTo(x, y + h, x, y + h - rr, rr);
+    ctx.lineTo(x, y + rr);
+    ctx.arcTo(x, y, x + rr, y, rr);
+    ctx.closePath();
+  }
+
+  function drawProcedural(progress) {
+    const W = canvasWidth;
+    const H = canvasHeight;
+    if (!W || !H) return;
+
+    const p = clamp01(progress);
     const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
-    const bg = isDark ? '#0B0B0C' : '#FAFAF8';
-    const stroke = isDark ? 'rgba(77, 109, 255, 0.4)' : 'rgba(43, 75, 255, 0.35)';
-    const emerald = isDark ? 'rgba(16, 185, 129, 0.6)' : 'rgba(15, 157, 116, 0.6)';
+    const C = isDark
+      ? { bg: '#0B0B0C', dot: 'rgba(255,255,255,0.07)', surface: '#141416', surface2: '#1c1c20', border: 'rgba(255,255,255,0.16)',
+          text: '#F2F2F0', muted: 'rgba(255,255,255,0.38)', accent: '#4D6DFF', green: '#10B981', editor: '#0d0f14',
+          code: { tag: '#ff7b72', attr: '#79c0ff', str: '#a5d6ff', prop: '#d2a8ff', val: '#ffa657', plain: '#e6e6e6' } }
+      : { bg: '#FAFAF8', dot: 'rgba(0,0,0,0.07)', surface: '#FFFFFF', surface2: '#F1F1EE', border: 'rgba(0,0,0,0.16)',
+          text: '#111111', muted: 'rgba(0,0,0,0.34)', accent: '#2B4BFF', green: '#0F9D74', editor: '#F4F5F9',
+          code: { tag: '#cf222e', attr: '#0550ae', str: '#0a3069', prop: '#8250df', val: '#953800', plain: '#24292f' } };
 
-    ctx.fillStyle = bg;
-    ctx.fillRect(0, 0, w, h);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.globalAlpha = 1;
+    ctx.setLineDash([]);
+    ctx.fillStyle = C.bg;
+    ctx.fillRect(0, 0, W, H);
 
-    // Dynamic grid
-    ctx.lineWidth = 1 * dpr;
-    ctx.strokeStyle = stroke;
-    const gridSize = 60 * dpr;
-    const offset = (progress * 200 * dpr) % gridSize;
-
-    for (let x = 0; x < w; x += gridSize) {
-      ctx.beginPath();
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x, h);
-      ctx.stroke();
-    }
-    for (let y = offset; y < h; y += gridSize) {
-      ctx.beginPath();
-      ctx.moveTo(0, y);
-      ctx.lineTo(w, y);
-      ctx.stroke();
+    // Soft dotted grid that drifts with scroll
+    ctx.fillStyle = C.dot;
+    const gs = 28;
+    const drift = (p * 70) % gs;
+    for (let x = gs / 2; x < W; x += gs) {
+      for (let y = drift - gs; y < H; y += gs) ctx.fillRect(x, y, 1.5, 1.5);
     }
 
-    // Expanding architectural circles & crosshairs
-    const cx = w / 2;
-    const cy = h / 2;
-    const radius = (120 + progress * 240) * dpr;
+    // ---- Layout of the scene (in CSS pixels) ----
+    const small = W < 600;
+    const topPad = 96; // clears the fixed site header
+    const areaBottom = H * (small ? 0.54 : 0.49);
+    const availH = Math.max(170, areaBottom - topPad);
+    const winW = Math.min(W * 0.92, small ? 360 : 600);
+    const winH = Math.min(availH, winW * 0.72);
+    const shift = small ? 0 : 70 * smooth(0.68, 0.8, p);
+    const winX = (W - winW) / 2 - shift;
+    const winY = topPad;
 
-    ctx.beginPath();
-    ctx.strokeStyle = emerald;
-    ctx.lineWidth = 2 * dpr;
-    ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+    // Window chrome
+    ctx.save();
+    ctx.shadowColor = isDark ? 'rgba(0,0,0,0.55)' : 'rgba(0,0,0,0.14)';
+    ctx.shadowBlur = 30;
+    ctx.shadowOffsetY = 12;
+    rrect(winX, winY, winW, winH, 12);
+    ctx.fillStyle = C.surface;
+    ctx.fill();
+    ctx.restore();
+    rrect(winX, winY, winW, winH, 12);
+    ctx.strokeStyle = C.border;
+    ctx.lineWidth = 1;
     ctx.stroke();
 
-    ctx.beginPath();
-    ctx.strokeStyle = stroke;
-    ctx.arc(cx, cy, radius * 0.6, 0, Math.PI * 2);
-    ctx.stroke();
+    const barH = 28;
+    ['#ff5f57', '#febc2e', '#28c840'].forEach((col, i) => {
+      ctx.beginPath();
+      ctx.arc(winX + 16 + i * 14, winY + barH / 2, 4, 0, Math.PI * 2);
+      ctx.fillStyle = col;
+      ctx.fill();
+    });
+    const pillW = Math.min(winW * 0.5, 210);
+    rrect(winX + (winW - pillW) / 2, winY + 6, pillW, barH - 12, 8);
+    ctx.fillStyle = C.surface2;
+    ctx.fill();
+    ctx.fillStyle = C.muted;
+    ctx.font = '10px ui-monospace, Menlo, Consolas, monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(p < 0.34 ? 'wireframe.fig' : p < 0.67 ? 'index.html' : 'elliotlano.dev', winX + winW / 2, winY + barH / 2 + 0.5);
+    ctx.textAlign = 'left';
 
-    // Geometric crosshair
-    ctx.beginPath();
-    ctx.moveTo(cx - 30 * dpr, cy);
-    ctx.lineTo(cx + 30 * dpr, cy);
-    ctx.moveTo(cx, cy - 30 * dpr);
-    ctx.lineTo(cx, cy + 30 * dpr);
-    ctx.stroke();
+    // Content area
+    const cx = winX + 12;
+    const cy = winY + barH + 8;
+    const cw = winW - 24;
+    const ch = winH - barH - 18;
 
-    // HUD Text
-    ctx.fillStyle = isDark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.6)';
-    ctx.font = `${12 * dpr}px monospace`;
-    ctx.fillText(`PROCEDURAL SYNTHESIS // PROGRESS: ${(progress * 100).toFixed(1)}%`, 30 * dpr, 40 * dpr);
-    ctx.fillText(`ACTIVE_FRAME: ${String(frameIdx + 1).padStart(3, '0')} / ${String(activeCount).padStart(3, '0')}`, 30 * dpr, 60 * dpr);
+    const aWire = 1 - smooth(0.3, 0.37, p);
+    const aCode = smooth(0.3, 0.37, p) * (1 - smooth(0.64, 0.71, p));
+    const aPage = smooth(0.64, 0.71, p);
+
+    ctx.save();
+    rrect(cx, cy, cw, ch, 6);
+    ctx.clip();
+
+    // Shared page layout, as fractions of the content area
+    const R = (fx, fy, fw, fh) => [cx + fx * cw, cy + fy * ch, fw * cw, fh * ch];
+    const layout = [
+      { k: 'nav', r: R(0, 0, 1, 0.11) },
+      { k: 'logo', r: R(0.03, 0.03, 0.1, 0.05) },
+      { k: 'link', r: R(0.62, 0.045, 0.1, 0.02) },
+      { k: 'link', r: R(0.75, 0.045, 0.1, 0.02) },
+      { k: 'link', r: R(0.88, 0.045, 0.08, 0.02) },
+      { k: 'h1', r: R(0.04, 0.2, 0.5, 0.07) },
+      { k: 'h1', r: R(0.04, 0.3, 0.36, 0.07) },
+      { k: 'sub', r: R(0.04, 0.42, 0.44, 0.03) },
+      { k: 'sub', r: R(0.04, 0.48, 0.34, 0.03) },
+      { k: 'btn', r: R(0.04, 0.58, 0.2, 0.09) },
+      { k: 'img', r: R(0.6, 0.18, 0.36, 0.5) },
+      { k: 'card', r: R(0.04, 0.76, 0.29, 0.22) },
+      { k: 'card', r: R(0.355, 0.76, 0.29, 0.22) },
+      { k: 'card', r: R(0.67, 0.76, 0.29, 0.22) }
+    ];
+
+    // 1) Wireframe
+    if (aWire > 0.01) {
+      ctx.globalAlpha = aWire;
+      const t = clamp01(p / 0.27);
+      ctx.setLineDash([5, 4]);
+      ctx.lineWidth = 1.2;
+      ctx.strokeStyle = C.muted;
+      layout.forEach((el, i) => {
+        const a = smooth(i * 0.055, i * 0.055 + 0.12, t);
+        if (a <= 0) return;
+        const [x, y, w, h] = el.r;
+        ctx.globalAlpha = aWire * a;
+        const grow = 0.85 + 0.15 * a;
+        rrect(x + (w * (1 - grow)) / 2, y + (h * (1 - grow)) / 2, w * grow, h * grow, 4);
+        ctx.stroke();
+        if (el.k === 'img') {
+          ctx.beginPath();
+          ctx.moveTo(x, y); ctx.lineTo(x + w, y + h);
+          ctx.moveTo(x + w, y); ctx.lineTo(x, y + h);
+          ctx.stroke();
+        }
+      });
+      ctx.setLineDash([]);
+    }
+
+    // 2) Code editor
+    if (aCode > 0.01) {
+      ctx.globalAlpha = aCode;
+      ctx.fillStyle = C.editor;
+      ctx.fillRect(cx, cy, cw, ch);
+      const fs = small ? 10.5 : 12;
+      const gutter = 26;
+      const lh = Math.min(fs * 1.75, (ch - 18) / CODE_LINES.length);
+      ctx.font = `${fs}px ui-monospace, Menlo, Consolas, monospace`;
+      ctx.textBaseline = 'middle';
+      let budget = Math.floor(clamp01((p - 0.35) / 0.28) * CODE_TOTAL);
+      let lastX = cx + gutter, lastY = cy + 14;
+      for (let li = 0; li < CODE_LINES.length; li++) {
+        const y = cy + 14 + li * lh;
+        if (budget <= 0) break;
+        ctx.fillStyle = C.muted;
+        ctx.fillText(String(li + 1), cx + 8, y);
+        let x = cx + gutter;
+        for (const [txt, kind] of CODE_LINES[li]) {
+          if (budget <= 0) break;
+          const part = txt.slice(0, budget);
+          budget -= part.length;
+          ctx.fillStyle = C.code[kind];
+          ctx.fillText(part, x, y);
+          x += ctx.measureText(part).width;
+        }
+        lastX = x; lastY = y;
+      }
+      if (p < 0.66) {
+        ctx.fillStyle = C.accent;
+        ctx.fillRect(lastX + 1, lastY - fs / 2, 1.6, fs);
+      }
+    }
+
+    // 3) Finished page
+    if (aPage > 0.01) {
+      ctx.globalAlpha = aPage;
+      ctx.fillStyle = C.surface;
+      ctx.fillRect(cx, cy, cw, ch);
+      layout.forEach((el) => {
+        const [x, y, w, h] = el.r;
+        switch (el.k) {
+          case 'nav': ctx.fillStyle = C.surface2; ctx.fillRect(x, y, w, h); break;
+          case 'logo': rrect(x, y, w, h, 4); ctx.fillStyle = C.accent; ctx.fill(); break;
+          case 'link': rrect(x, y, w, h, h / 2); ctx.fillStyle = C.muted; ctx.fill(); break;
+          case 'h1': rrect(x, y, w, h, h / 2.2); ctx.fillStyle = C.text; ctx.fill(); break;
+          case 'sub': rrect(x, y, w, h, h / 2); ctx.fillStyle = C.muted; ctx.fill(); break;
+          case 'btn':
+            rrect(x, y, w, h, h / 2); ctx.fillStyle = C.accent; ctx.fill();
+            rrect(x + w * 0.25, y + h * 0.4, w * 0.5, h * 0.2, h * 0.1); ctx.fillStyle = '#fff'; ctx.fill();
+            break;
+          case 'img': {
+            const g = ctx.createLinearGradient(x, y, x + w, y + h);
+            g.addColorStop(0, C.accent); g.addColorStop(1, C.green);
+            rrect(x, y, w, h, 8); ctx.fillStyle = g; ctx.fill();
+            break;
+          }
+          case 'card':
+            rrect(x, y, w, h, 6); ctx.fillStyle = C.surface2; ctx.fill();
+            ctx.beginPath(); ctx.arc(x + 12, y + 12, 5, 0, Math.PI * 2); ctx.fillStyle = C.accent; ctx.fill();
+            rrect(x + 8, y + h * 0.55, w * 0.6, 4, 2); ctx.fillStyle = C.muted; ctx.fill();
+            break;
+          default: break;
+        }
+      });
+    }
+    ctx.restore();
+    ctx.globalAlpha = 1;
+
+    // ---- Phone (responsive view) ----
+    const tPhone = smooth(0.7, 0.82, p);
+    if (tPhone > 0.01) {
+      const phW = small ? 86 : 104;
+      const phH = Math.min(phW * 2.0, winH * 1.02);
+      const phX = winX + winW - phW * (small ? 0.62 : 0.3);
+      const phY = winY + winH - phH + (small ? 22 : 18) + (1 - tPhone) * 36;
+      ctx.globalAlpha = tPhone;
+      ctx.save();
+      ctx.shadowColor = isDark ? 'rgba(0,0,0,0.6)' : 'rgba(0,0,0,0.22)';
+      ctx.shadowBlur = 24;
+      ctx.shadowOffsetY = 10;
+      rrect(phX, phY, phW, phH, 14);
+      ctx.fillStyle = C.surface;
+      ctx.fill();
+      ctx.restore();
+      rrect(phX, phY, phW, phH, 14);
+      ctx.strokeStyle = C.border;
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      rrect(phX + phW / 2 - 12, phY + 6, 24, 4, 2);
+      ctx.fillStyle = C.border;
+      ctx.fill();
+      const px = phX + 8, pw = phW - 16;
+      let py = phY + 18;
+      rrect(px, py, pw, 10, 3); ctx.fillStyle = C.surface2; ctx.fill();
+      rrect(px + 3, py + 3, 10, 4, 2); ctx.fillStyle = C.accent; ctx.fill();
+      py += 18;
+      rrect(px, py, pw * 0.9, 7, 3.5); ctx.fillStyle = C.text; ctx.fill(); py += 12;
+      rrect(px, py, pw * 0.65, 7, 3.5); ctx.fillStyle = C.text; ctx.fill(); py += 14;
+      rrect(px, py, pw * 0.8, 3, 1.5); ctx.fillStyle = C.muted; ctx.fill(); py += 8;
+      rrect(px, py, pw * 0.6, 3, 1.5); ctx.fillStyle = C.muted; ctx.fill(); py += 12;
+      rrect(px, py, pw * 0.55, 14, 7); ctx.fillStyle = C.accent; ctx.fill(); py += 22;
+      const g2 = ctx.createLinearGradient(px, py, px + pw, py + 40);
+      g2.addColorStop(0, C.accent); g2.addColorStop(1, C.green);
+      const imgH = Math.max(18, Math.min(44, phY + phH - py - 40));
+      rrect(px, py, pw, imgH, 6); ctx.fillStyle = g2; ctx.fill(); py += imgH + 8;
+      if (py + 14 < phY + phH - 6) { rrect(px, py, pw, 14, 4); ctx.fillStyle = C.surface2; ctx.fill(); }
+      ctx.globalAlpha = 1;
+    }
+
+    // ---- Scores row ----
+    const tScore = smooth(0.82, 0.97, p);
+    if (tScore > 0.01) {
+      const r = small ? 14 : 17;
+      const gap = small ? 20 : 30;
+      const labels = ['Perf', 'A11y', 'SEO', 'Best'];
+      const total = labels.length * r * 2 + (labels.length - 1) * gap;
+      const sx = (W - total) / 2 - shift * 0.9;
+      const sy = winY + winH + 26 + r;
+      ctx.font = `600 ${small ? 9 : 10}px ui-monospace, Menlo, Consolas, monospace`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      labels.forEach((label, i) => {
+        const x = sx + r + i * (r * 2 + gap);
+        const a = smooth(i * 0.12, i * 0.12 + 0.55, tScore);
+        ctx.globalAlpha = Math.min(1, tScore * 3);
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = C.surface2;
+        ctx.beginPath(); ctx.arc(x, sy, r, 0, Math.PI * 2); ctx.stroke();
+        ctx.strokeStyle = C.green;
+        ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.arc(x, sy, r, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * a); ctx.stroke();
+        ctx.lineCap = 'butt';
+        ctx.fillStyle = C.green;
+        ctx.fillText(String(Math.round(100 * a)), x, sy + 0.5);
+        ctx.fillStyle = C.muted;
+        ctx.fillText(label, x, sy + r + 12);
+      });
+      ctx.textAlign = 'left';
+      ctx.globalAlpha = 1;
+    }
+
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
   }
 
   /**
@@ -484,6 +733,15 @@ export function initSequence(config = {}) {
    * Preload frames in batches of 8 using Image + decode() off the main thread
    */
   async function preloadFrames() {
+    // The canvas now draws a procedural web-development scene, so no image frames are needed.
+    if (config.useFrames !== true) {
+      hasFallbackMode = true;
+      drawFrame(0, true);
+      syncUI(0, 0);
+      reportPreloadProgress(1);
+      return;
+    }
+
     // 1. Immediately load frame 0 (poster)
     const poster = new Image();
     poster.src = getFrameSrc(0);

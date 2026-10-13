@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { from: 0.71, to: 0.98, el: document.getElementById('seq-caption-3') }
       ],
       onPreloadProgress: (ratio) => {
-        updatePreloader(ratio);
+        if (typeof window.updatePreloader === 'function') window.updatePreloader(ratio);
       }
     });
   }
@@ -126,7 +126,8 @@ function initPreloader(hasSequence) {
   }, 30);
 
   // Fallback safety timeout if frames take long or page doesn't have sequence
-  const safetyTimeout = hasSequence ? 1800 : 450;
+  // The canvas scene is drawn procedurally (no image frames to download), so keep the curtain short
+  const safetyTimeout = hasSequence ? 700 : 450;
   setTimeout(() => {
     if (!isDone) {
       targetPercent = 100;
