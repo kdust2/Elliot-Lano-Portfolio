@@ -125,7 +125,7 @@ function initScrollProgressBar(lenis) {
       const scrollTop = window.scrollY || document.documentElement.scrollTop;
       const docHeight = document.documentElement.scrollHeight - window.innerHeight;
       const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
-      progressBar.style.width = `${Math.min(100, Math.max(0, progress))}%`;
+      progressBar.style.transform = `scaleX(${Math.min(1, Math.max(0, progress / 100)).toFixed(4)})`;
       isTicking = false;
     });
   }

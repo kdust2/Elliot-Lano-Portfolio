@@ -66,6 +66,7 @@ export function initSequence(config = {}) {
   let targetFrame = 0;
   let currentFrame = 0;
   let lastDrawnFrame = -1;
+  let lastSmoothProgress = -1;
   let lastDrawnImg = null;
   let isIntersecting = false;
   let isRafRunning = false;
@@ -130,7 +131,8 @@ export function initSequence(config = {}) {
     measureDimensions();
 
     const rect = canvas.parentElement ? canvas.parentElement.getBoundingClientRect() : wrapper.getBoundingClientRect();
-    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    // Phones: cap pixel density at 1.5x; the scene is flat shapes and text, and this cuts fill cost by ~45%
+    dpr = Math.min(window.devicePixelRatio || 1, window.innerWidth <= 768 ? 1.5 : 2);
     canvasWidth = rect.width;
     canvasHeight = rect.height;
 
@@ -163,10 +165,14 @@ export function initSequence(config = {}) {
 
   /**
    * Web-development scene, drawn procedurally and driven by scroll progress (0..1):
-   *   0.00-0.33  wireframe assembles in a browser window
+   *   0.00-0.33  a wireframe is "scanned" into a browser window
    *   0.33-0.67  the window turns into an editor and HTML/CSS types itself out
    *   0.67-1.00  the finished page appears, a phone version slides in (responsive)
    *              and Lighthouse-style scores fill up to 100
+   *
+   * Performance: everything static (background, window with its shadow, wireframe,
+   * finished page, phone) is rendered ONCE into cached sprites. Each frame is then just
+   * a handful of drawImage calls plus a few lines of text, with no shadow blurs.
    */
   const CODE_LINES = [
     [['<section ', 'tag'], ['class=', 'attr'], ['"hero"', 'str'], ['>', 'tag']],
@@ -180,6 +186,9 @@ export function initSequence(config = {}) {
     [['}', 'plain']]
   ];
   const CODE_TOTAL = CODE_LINES.reduce((n, l) => n + l.reduce((m, seg) => m + seg[0].length, 0), 0);
+  const MONO = 'ui-monospace, Menlo, Consolas, monospace';
+  const SPRITE_PAD = 40;
+  const GRID = 28;
 
   const clamp01 = (v) => Math.max(0, Math.min(1, v));
   const smooth = (a, b, v) => {
@@ -187,109 +196,106 @@ export function initSequence(config = {}) {
     return t * t * (3 - 2 * t);
   };
 
-  function rrect(x, y, w, h, r) {
+  function rrectOn(c, x, y, w, h, r) {
     const rr = Math.max(0, Math.min(r, w / 2, h / 2));
-    ctx.beginPath();
-    ctx.moveTo(x + rr, y);
-    ctx.lineTo(x + w - rr, y);
-    ctx.arcTo(x + w, y, x + w, y + rr, rr);
-    ctx.lineTo(x + w, y + h - rr);
-    ctx.arcTo(x + w, y + h, x + w - rr, y + h, rr);
-    ctx.lineTo(x + rr, y + h);
-    ctx.arcTo(x, y + h, x, y + h - rr, rr);
-    ctx.lineTo(x, y + rr);
-    ctx.arcTo(x, y, x + rr, y, rr);
-    ctx.closePath();
+    c.beginPath();
+    c.moveTo(x + rr, y);
+    c.lineTo(x + w - rr, y);
+    c.arcTo(x + w, y, x + w, y + rr, rr);
+    c.lineTo(x + w, y + h - rr);
+    c.arcTo(x + w, y + h, x + w - rr, y + h, rr);
+    c.lineTo(x + rr, y + h);
+    c.arcTo(x, y + h, x, y + h - rr, rr);
+    c.lineTo(x, y + rr);
+    c.arcTo(x, y, x + rr, y, rr);
+    c.closePath();
   }
 
-  function drawProcedural(progress) {
+  function makeSprite(w, h) {
+    const c = document.createElement('canvas');
+    c.width = Math.max(1, Math.round(w * dpr));
+    c.height = Math.max(1, Math.round(h * dpr));
+    const x = c.getContext('2d');
+    x.scale(dpr, dpr);
+    return { c, x };
+  }
+
+  const snap = (v) => Math.round(v * dpr) / dpr;
+  let scene = null;
+
+  function getScene(isDark) {
     const W = canvasWidth;
     const H = canvasHeight;
-    if (!W || !H) return;
+    const key = `${isDark}|${W}|${H}|${dpr}`;
+    if (scene && scene.key === key) return scene;
 
-    const p = clamp01(progress);
-    const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
     const C = isDark
       ? { bg: '#0B0B0C', dot: 'rgba(255,255,255,0.07)', surface: '#141416', surface2: '#1c1c20', border: 'rgba(255,255,255,0.16)',
           text: '#F2F2F0', muted: 'rgba(255,255,255,0.38)', accent: '#4D6DFF', green: '#10B981', editor: '#0d0f14',
+          shadow: 'rgba(0,0,0,0.55)', glow: 'rgba(77,109,255,0.16)',
           code: { tag: '#ff7b72', attr: '#79c0ff', str: '#a5d6ff', prop: '#d2a8ff', val: '#ffa657', plain: '#e6e6e6' } }
       : { bg: '#FAFAF8', dot: 'rgba(0,0,0,0.07)', surface: '#FFFFFF', surface2: '#F1F1EE', border: 'rgba(0,0,0,0.16)',
           text: '#111111', muted: 'rgba(0,0,0,0.34)', accent: '#2B4BFF', green: '#0F9D74', editor: '#F4F5F9',
+          shadow: 'rgba(0,0,0,0.16)', glow: 'rgba(43,75,255,0.09)',
           code: { tag: '#cf222e', attr: '#0550ae', str: '#0a3069', prop: '#8250df', val: '#953800', plain: '#24292f' } };
 
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.globalAlpha = 1;
-    ctx.setLineDash([]);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
-
-    // Soft dotted grid that drifts with scroll
-    ctx.fillStyle = C.dot;
-    const gs = 28;
-    const drift = (p * 70) % gs;
-    for (let x = gs / 2; x < W; x += gs) {
-      for (let y = drift - gs; y < H; y += gs) ctx.fillRect(x, y, 1.5, 1.5);
-    }
-
-    // ---- Layout of the scene (in CSS pixels) ----
     const small = W < 600;
     const topPad = 96; // clears the fixed site header
     const areaBottom = H * (small ? 0.54 : 0.49);
     const availH = Math.max(170, areaBottom - topPad);
     const winW = Math.min(W * 0.92, small ? 360 : 600);
     const winH = Math.min(availH, winW * 0.72);
-    const shift = small ? 0 : 70 * smooth(0.68, 0.8, p);
-    const winX = (W - winW) / 2 - shift;
+    const winX0 = (W - winW) / 2;
     const winY = topPad;
-
-    // Window chrome
-    ctx.save();
-    ctx.shadowColor = isDark ? 'rgba(0,0,0,0.55)' : 'rgba(0,0,0,0.14)';
-    ctx.shadowBlur = 30;
-    ctx.shadowOffsetY = 12;
-    rrect(winX, winY, winW, winH, 12);
-    ctx.fillStyle = C.surface;
-    ctx.fill();
-    ctx.restore();
-    rrect(winX, winY, winW, winH, 12);
-    ctx.strokeStyle = C.border;
-    ctx.lineWidth = 1;
-    ctx.stroke();
-
     const barH = 28;
-    ['#ff5f57', '#febc2e', '#28c840'].forEach((col, i) => {
-      ctx.beginPath();
-      ctx.arc(winX + 16 + i * 14, winY + barH / 2, 4, 0, Math.PI * 2);
-      ctx.fillStyle = col;
-      ctx.fill();
-    });
-    const pillW = Math.min(winW * 0.5, 210);
-    rrect(winX + (winW - pillW) / 2, winY + 6, pillW, barH - 12, 8);
-    ctx.fillStyle = C.surface2;
-    ctx.fill();
-    ctx.fillStyle = C.muted;
-    ctx.font = '10px ui-monospace, Menlo, Consolas, monospace';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(p < 0.34 ? 'wireframe.fig' : p < 0.67 ? 'index.html' : 'elliotlano.dev', winX + winW / 2, winY + barH / 2 + 0.5);
-    ctx.textAlign = 'left';
-
-    // Content area
-    const cx = winX + 12;
-    const cy = winY + barH + 8;
     const cw = winW - 24;
     const ch = winH - barH - 18;
+    const fs = small ? 10.5 : 12;
+    const phW = small ? 86 : 104;
+    const phH = Math.min(phW * 2.0, winH * 1.02);
 
-    const aWire = 1 - smooth(0.3, 0.37, p);
-    const aCode = smooth(0.3, 0.37, p) * (1 - smooth(0.64, 0.71, p));
-    const aPage = smooth(0.64, 0.71, p);
+    // ---- Background: flat colour + soft glow + dotted grid (drifts with scroll) ----
+    const bg = makeSprite(W, H + GRID);
+    bg.x.fillStyle = C.bg;
+    bg.x.fillRect(0, 0, W, H + GRID);
+    const glow = bg.x.createRadialGradient(W / 2, winY + winH / 2 + GRID, 10, W / 2, winY + winH / 2 + GRID, Math.max(W * 0.7, winH));
+    glow.addColorStop(0, C.glow);
+    glow.addColorStop(1, 'rgba(0,0,0,0)');
+    bg.x.fillStyle = glow;
+    bg.x.fillRect(0, 0, W, H + GRID);
+    bg.x.fillStyle = C.dot;
+    for (let x = GRID / 2; x < W; x += GRID) {
+      for (let y = 0; y < H + GRID; y += GRID) bg.x.fillRect(x, y, 1.5, 1.5);
+    }
 
-    ctx.save();
-    rrect(cx, cy, cw, ch, 6);
-    ctx.clip();
+    // ---- Browser window shell with its (expensive) shadow baked in ----
+    const win = makeSprite(winW + SPRITE_PAD * 2, winH + SPRITE_PAD * 2);
+    const wx = win.x;
+    wx.save();
+    wx.shadowColor = C.shadow;
+    wx.shadowBlur = 30;
+    wx.shadowOffsetY = 12;
+    rrectOn(wx, SPRITE_PAD, SPRITE_PAD, winW, winH, 12);
+    wx.fillStyle = C.surface;
+    wx.fill();
+    wx.restore();
+    rrectOn(wx, SPRITE_PAD, SPRITE_PAD, winW, winH, 12);
+    wx.strokeStyle = C.border;
+    wx.lineWidth = 1;
+    wx.stroke();
+    ['#ff5f57', '#febc2e', '#28c840'].forEach((col, i) => {
+      wx.beginPath();
+      wx.arc(SPRITE_PAD + 16 + i * 14, SPRITE_PAD + barH / 2, 4, 0, Math.PI * 2);
+      wx.fillStyle = col;
+      wx.fill();
+    });
+    const pillW = Math.min(winW * 0.5, 210);
+    rrectOn(wx, SPRITE_PAD + (winW - pillW) / 2, SPRITE_PAD + 6, pillW, barH - 12, 8);
+    wx.fillStyle = C.surface2;
+    wx.fill();
 
-    // Shared page layout, as fractions of the content area
-    const R = (fx, fy, fw, fh) => [cx + fx * cw, cy + fy * ch, fw * cw, fh * ch];
+    // Shared page layout in content-local coordinates
+    const R = (fx, fy, fw, fh) => [fx * cw, fy * ch, fw * cw, fh * ch];
     const layout = [
       { k: 'nav', r: R(0, 0, 1, 0.11) },
       { k: 'logo', r: R(0.03, 0.03, 0.1, 0.05) },
@@ -307,58 +313,201 @@ export function initSequence(config = {}) {
       { k: 'card', r: R(0.67, 0.76, 0.29, 0.22) }
     ];
 
-    // 1) Wireframe
-    if (aWire > 0.01) {
-      ctx.globalAlpha = aWire;
-      const t = clamp01(p / 0.27);
-      ctx.setLineDash([5, 4]);
-      ctx.lineWidth = 1.2;
-      ctx.strokeStyle = C.muted;
-      layout.forEach((el, i) => {
-        const a = smooth(i * 0.055, i * 0.055 + 0.12, t);
-        if (a <= 0) return;
-        const [x, y, w, h] = el.r;
-        ctx.globalAlpha = aWire * a;
-        const grow = 0.85 + 0.15 * a;
-        rrect(x + (w * (1 - grow)) / 2, y + (h * (1 - grow)) / 2, w * grow, h * grow, 4);
-        ctx.stroke();
-        if (el.k === 'img') {
-          ctx.beginPath();
-          ctx.moveTo(x, y); ctx.lineTo(x + w, y + h);
-          ctx.moveTo(x + w, y); ctx.lineTo(x, y + h);
-          ctx.stroke();
+    // ---- Wireframe sprite (dashed outlines) ----
+    const wire = makeSprite(cw, ch);
+    wire.x.setLineDash([5, 4]);
+    wire.x.lineWidth = 1.2;
+    wire.x.strokeStyle = C.muted;
+    layout.forEach((el) => {
+      const [x, y, w, h] = el.r;
+      rrectOn(wire.x, x, y, w, h, 4);
+      wire.x.stroke();
+      if (el.k === 'img') {
+        wire.x.beginPath();
+        wire.x.moveTo(x, y); wire.x.lineTo(x + w, y + h);
+        wire.x.moveTo(x + w, y); wire.x.lineTo(x, y + h);
+        wire.x.stroke();
+      }
+    });
+
+    // ---- Finished page sprite ----
+    const page = makeSprite(cw, ch);
+    const px = page.x;
+    rrectOn(px, 0, 0, cw, ch, 6);
+    px.fillStyle = C.surface;
+    px.fill();
+    layout.forEach((el) => {
+      const [x, y, w, h] = el.r;
+      switch (el.k) {
+        case 'nav': px.fillStyle = C.surface2; px.fillRect(x, y, w, h); break;
+        case 'logo': rrectOn(px, x, y, w, h, 4); px.fillStyle = C.accent; px.fill(); break;
+        case 'link': rrectOn(px, x, y, w, h, h / 2); px.fillStyle = C.muted; px.fill(); break;
+        case 'h1': rrectOn(px, x, y, w, h, h / 2.2); px.fillStyle = C.text; px.fill(); break;
+        case 'sub': rrectOn(px, x, y, w, h, h / 2); px.fillStyle = C.muted; px.fill(); break;
+        case 'btn':
+          rrectOn(px, x, y, w, h, h / 2); px.fillStyle = C.accent; px.fill();
+          rrectOn(px, x + w * 0.25, y + h * 0.4, w * 0.5, h * 0.2, h * 0.1); px.fillStyle = '#fff'; px.fill();
+          break;
+        case 'img': {
+          const g = px.createLinearGradient(x, y, x + w, y + h);
+          g.addColorStop(0, C.accent); g.addColorStop(1, C.green);
+          rrectOn(px, x, y, w, h, 8); px.fillStyle = g; px.fill();
+          break;
         }
-      });
-      ctx.setLineDash([]);
+        case 'card':
+          rrectOn(px, x, y, w, h, 6); px.fillStyle = C.surface2; px.fill();
+          px.beginPath(); px.arc(x + 12, y + 12, 5, 0, Math.PI * 2); px.fillStyle = C.accent; px.fill();
+          rrectOn(px, x + 8, y + h * 0.55, w * 0.6, 4, 2); px.fillStyle = C.muted; px.fill();
+          break;
+        default: break;
+      }
+    });
+
+    // ---- Phone sprite (responsive view) with its shadow baked in ----
+    const phone = makeSprite(phW + SPRITE_PAD * 2, phH + SPRITE_PAD * 2);
+    const hx = phone.x;
+    hx.save();
+    hx.shadowColor = C.shadow;
+    hx.shadowBlur = 24;
+    hx.shadowOffsetY = 10;
+    rrectOn(hx, SPRITE_PAD, SPRITE_PAD, phW, phH, 14);
+    hx.fillStyle = C.surface;
+    hx.fill();
+    hx.restore();
+    rrectOn(hx, SPRITE_PAD, SPRITE_PAD, phW, phH, 14);
+    hx.strokeStyle = C.border;
+    hx.lineWidth = 1.5;
+    hx.stroke();
+    rrectOn(hx, SPRITE_PAD + phW / 2 - 12, SPRITE_PAD + 6, 24, 4, 2);
+    hx.fillStyle = C.border;
+    hx.fill();
+    const ix = SPRITE_PAD + 8;
+    const iw = phW - 16;
+    let iy = SPRITE_PAD + 18;
+    rrectOn(hx, ix, iy, iw, 10, 3); hx.fillStyle = C.surface2; hx.fill();
+    rrectOn(hx, ix + 3, iy + 3, 10, 4, 2); hx.fillStyle = C.accent; hx.fill();
+    iy += 18;
+    rrectOn(hx, ix, iy, iw * 0.9, 7, 3.5); hx.fillStyle = C.text; hx.fill(); iy += 12;
+    rrectOn(hx, ix, iy, iw * 0.65, 7, 3.5); hx.fillStyle = C.text; hx.fill(); iy += 14;
+    rrectOn(hx, ix, iy, iw * 0.8, 3, 1.5); hx.fillStyle = C.muted; hx.fill(); iy += 8;
+    rrectOn(hx, ix, iy, iw * 0.6, 3, 1.5); hx.fillStyle = C.muted; hx.fill(); iy += 12;
+    rrectOn(hx, ix, iy, iw * 0.55, 14, 7); hx.fillStyle = C.accent; hx.fill(); iy += 22;
+    const g2 = hx.createLinearGradient(ix, iy, ix + iw, iy + 40);
+    g2.addColorStop(0, C.accent); g2.addColorStop(1, C.green);
+    const imgH = Math.max(18, Math.min(44, SPRITE_PAD + phH - iy - 40));
+    rrectOn(hx, ix, iy, iw, imgH, 6); hx.fillStyle = g2; hx.fill(); iy += imgH + 8;
+    if (iy + 14 < SPRITE_PAD + phH - 6) { rrectOn(hx, ix, iy, iw, 14, 4); hx.fillStyle = C.surface2; hx.fill(); }
+
+    // Text metrics measured once
+    ctx.font = `${fs}px ${MONO}`;
+    const charW = ctx.measureText('M').width;
+    ctx.font = `10px ${MONO}`;
+    const addrHalf = ctx.measureText('elliotlano.dev').width / 2;
+
+    scene = { key, C, small, winW, winH, winX0, winY, barH, cw, ch, fs, phW, phH, charW, addrHalf, bg, win, wire, page, phone };
+    return scene;
+  }
+
+  function drawProcedural(progress) {
+    const W = canvasWidth;
+    const H = canvasHeight;
+    if (!W || !H) return;
+
+    const p = clamp01(progress);
+    const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+    const S = getScene(isDark);
+    const { C, small, winW, winH, winY, barH, cw, ch, fs } = S;
+
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.globalAlpha = 1;
+
+    // Background (cached) drifting with scroll
+    ctx.drawImage(S.bg.c, 0, snap((p * 70) % GRID - GRID), W, H + GRID);
+
+    // Window (cached shell)
+    const shift = small ? 0 : 70 * smooth(0.68, 0.8, p);
+    const winX = S.winX0 - shift;
+    ctx.drawImage(S.win.c, snap(winX - SPRITE_PAD), snap(winY - SPRITE_PAD), winW + SPRITE_PAD * 2, winH + SPRITE_PAD * 2);
+
+    // Address label
+    ctx.font = `10px ${MONO}`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = C.muted;
+    ctx.fillText(p < 0.34 ? 'wireframe.fig' : p < 0.67 ? 'index.html' : 'elliotlano.dev', winX + winW / 2, winY + barH / 2 + 0.5);
+    if (p > 0.9) {
+      // "live" dot
+      ctx.beginPath();
+      ctx.arc(winX + winW / 2 - S.addrHalf - 8, winY + barH / 2, 2.6, 0, Math.PI * 2);
+      ctx.fillStyle = C.green;
+      ctx.fill();
+    }
+    ctx.textAlign = 'left';
+
+    // Content area
+    const cx = winX + 12;
+    const cy = winY + barH + 8;
+    const aWire = 1 - smooth(0.3, 0.37, p);
+    const aCode = smooth(0.3, 0.37, p) * (1 - smooth(0.64, 0.71, p));
+    const aPage = smooth(0.64, 0.71, p);
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(cx, cy, cw, ch);
+    ctx.clip();
+
+    // 1) Wireframe: scanned into place top to bottom by an accent scan line
+    if (aWire > 0.01) {
+      const t = clamp01(p / 0.27);
+      const revealH = t * ch * 1.04;
+      ctx.globalAlpha = aWire;
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(cx, cy, cw, Math.min(ch, revealH));
+      ctx.clip();
+      ctx.drawImage(S.wire.c, cx, cy, cw, ch);
+      ctx.restore();
+      if (t < 0.98) {
+        const sy = cy + revealH;
+        const band = ctx.createLinearGradient(0, sy - 26, 0, sy);
+        band.addColorStop(0, 'rgba(0,0,0,0)');
+        band.addColorStop(1, isDark ? 'rgba(77,109,255,0.22)' : 'rgba(43,75,255,0.14)');
+        ctx.fillStyle = band;
+        ctx.fillRect(cx, sy - 26, cw, 26);
+        ctx.fillStyle = C.accent;
+        ctx.fillRect(cx, sy - 1, cw, 2);
+      }
     }
 
     // 2) Code editor
     if (aCode > 0.01) {
       ctx.globalAlpha = aCode;
+      rrectOn(ctx, cx, cy, cw, ch, 6);
       ctx.fillStyle = C.editor;
-      ctx.fillRect(cx, cy, cw, ch);
-      const fs = small ? 10.5 : 12;
+      ctx.fill();
       const gutter = 26;
       const lh = Math.min(fs * 1.75, (ch - 18) / CODE_LINES.length);
-      ctx.font = `${fs}px ui-monospace, Menlo, Consolas, monospace`;
+      ctx.font = `${fs}px ${MONO}`;
       ctx.textBaseline = 'middle';
       let budget = Math.floor(clamp01((p - 0.35) / 0.28) * CODE_TOTAL);
-      let lastX = cx + gutter, lastY = cy + 14;
+      let lastX = cx + gutter;
+      let lastY = cy + 14;
       for (let li = 0; li < CODE_LINES.length; li++) {
-        const y = cy + 14 + li * lh;
         if (budget <= 0) break;
+        const y = cy + 14 + li * lh;
         ctx.fillStyle = C.muted;
         ctx.fillText(String(li + 1), cx + 8, y);
         let x = cx + gutter;
         for (const [txt, kind] of CODE_LINES[li]) {
           if (budget <= 0) break;
-          const part = txt.slice(0, budget);
+          const part = txt.length > budget ? txt.slice(0, budget) : txt;
           budget -= part.length;
           ctx.fillStyle = C.code[kind];
           ctx.fillText(part, x, y);
-          x += ctx.measureText(part).width;
+          x += part.length * S.charW;
         }
-        lastX = x; lastY = y;
+        lastX = x;
+        lastY = y;
       }
       if (p < 0.66) {
         ctx.fillStyle = C.accent;
@@ -366,83 +515,25 @@ export function initSequence(config = {}) {
       }
     }
 
-    // 3) Finished page
+    // 3) Finished page (cached)
     if (aPage > 0.01) {
       ctx.globalAlpha = aPage;
-      ctx.fillStyle = C.surface;
-      ctx.fillRect(cx, cy, cw, ch);
-      layout.forEach((el) => {
-        const [x, y, w, h] = el.r;
-        switch (el.k) {
-          case 'nav': ctx.fillStyle = C.surface2; ctx.fillRect(x, y, w, h); break;
-          case 'logo': rrect(x, y, w, h, 4); ctx.fillStyle = C.accent; ctx.fill(); break;
-          case 'link': rrect(x, y, w, h, h / 2); ctx.fillStyle = C.muted; ctx.fill(); break;
-          case 'h1': rrect(x, y, w, h, h / 2.2); ctx.fillStyle = C.text; ctx.fill(); break;
-          case 'sub': rrect(x, y, w, h, h / 2); ctx.fillStyle = C.muted; ctx.fill(); break;
-          case 'btn':
-            rrect(x, y, w, h, h / 2); ctx.fillStyle = C.accent; ctx.fill();
-            rrect(x + w * 0.25, y + h * 0.4, w * 0.5, h * 0.2, h * 0.1); ctx.fillStyle = '#fff'; ctx.fill();
-            break;
-          case 'img': {
-            const g = ctx.createLinearGradient(x, y, x + w, y + h);
-            g.addColorStop(0, C.accent); g.addColorStop(1, C.green);
-            rrect(x, y, w, h, 8); ctx.fillStyle = g; ctx.fill();
-            break;
-          }
-          case 'card':
-            rrect(x, y, w, h, 6); ctx.fillStyle = C.surface2; ctx.fill();
-            ctx.beginPath(); ctx.arc(x + 12, y + 12, 5, 0, Math.PI * 2); ctx.fillStyle = C.accent; ctx.fill();
-            rrect(x + 8, y + h * 0.55, w * 0.6, 4, 2); ctx.fillStyle = C.muted; ctx.fill();
-            break;
-          default: break;
-        }
-      });
+      ctx.drawImage(S.page.c, cx, cy, cw, ch);
     }
     ctx.restore();
     ctx.globalAlpha = 1;
 
-    // ---- Phone (responsive view) ----
+    // Phone (cached) slides up and fades in
     const tPhone = smooth(0.7, 0.82, p);
     if (tPhone > 0.01) {
-      const phW = small ? 86 : 104;
-      const phH = Math.min(phW * 2.0, winH * 1.02);
-      const phX = winX + winW - phW * (small ? 0.62 : 0.3);
-      const phY = winY + winH - phH + (small ? 22 : 18) + (1 - tPhone) * 36;
+      const phX = winX + winW - S.phW * (small ? 0.62 : 0.3);
+      const phY = winY + winH - S.phH + (small ? 22 : 18) + (1 - tPhone) * 36;
       ctx.globalAlpha = tPhone;
-      ctx.save();
-      ctx.shadowColor = isDark ? 'rgba(0,0,0,0.6)' : 'rgba(0,0,0,0.22)';
-      ctx.shadowBlur = 24;
-      ctx.shadowOffsetY = 10;
-      rrect(phX, phY, phW, phH, 14);
-      ctx.fillStyle = C.surface;
-      ctx.fill();
-      ctx.restore();
-      rrect(phX, phY, phW, phH, 14);
-      ctx.strokeStyle = C.border;
-      ctx.lineWidth = 1.5;
-      ctx.stroke();
-      rrect(phX + phW / 2 - 12, phY + 6, 24, 4, 2);
-      ctx.fillStyle = C.border;
-      ctx.fill();
-      const px = phX + 8, pw = phW - 16;
-      let py = phY + 18;
-      rrect(px, py, pw, 10, 3); ctx.fillStyle = C.surface2; ctx.fill();
-      rrect(px + 3, py + 3, 10, 4, 2); ctx.fillStyle = C.accent; ctx.fill();
-      py += 18;
-      rrect(px, py, pw * 0.9, 7, 3.5); ctx.fillStyle = C.text; ctx.fill(); py += 12;
-      rrect(px, py, pw * 0.65, 7, 3.5); ctx.fillStyle = C.text; ctx.fill(); py += 14;
-      rrect(px, py, pw * 0.8, 3, 1.5); ctx.fillStyle = C.muted; ctx.fill(); py += 8;
-      rrect(px, py, pw * 0.6, 3, 1.5); ctx.fillStyle = C.muted; ctx.fill(); py += 12;
-      rrect(px, py, pw * 0.55, 14, 7); ctx.fillStyle = C.accent; ctx.fill(); py += 22;
-      const g2 = ctx.createLinearGradient(px, py, px + pw, py + 40);
-      g2.addColorStop(0, C.accent); g2.addColorStop(1, C.green);
-      const imgH = Math.max(18, Math.min(44, phY + phH - py - 40));
-      rrect(px, py, pw, imgH, 6); ctx.fillStyle = g2; ctx.fill(); py += imgH + 8;
-      if (py + 14 < phY + phH - 6) { rrect(px, py, pw, 14, 4); ctx.fillStyle = C.surface2; ctx.fill(); }
+      ctx.drawImage(S.phone.c, snap(phX - SPRITE_PAD), snap(phY - SPRITE_PAD), S.phW + SPRITE_PAD * 2, S.phH + SPRITE_PAD * 2);
       ctx.globalAlpha = 1;
     }
 
-    // ---- Scores row ----
+    // Scores row
     const tScore = smooth(0.82, 0.97, p);
     if (tScore > 0.01) {
       const r = small ? 14 : 17;
@@ -451,20 +542,22 @@ export function initSequence(config = {}) {
       const total = labels.length * r * 2 + (labels.length - 1) * gap;
       const sx = (W - total) / 2 - shift * 0.9;
       const sy = winY + winH + 26 + r;
-      ctx.font = `600 ${small ? 9 : 10}px ui-monospace, Menlo, Consolas, monospace`;
+      ctx.font = `600 ${small ? 9 : 10}px ${MONO}`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
+      ctx.lineWidth = 3;
+      ctx.globalAlpha = Math.min(1, tScore * 3);
       labels.forEach((label, i) => {
         const x = sx + r + i * (r * 2 + gap);
         const a = smooth(i * 0.12, i * 0.12 + 0.55, tScore);
-        ctx.globalAlpha = Math.min(1, tScore * 3);
-        ctx.lineWidth = 3;
         ctx.strokeStyle = C.surface2;
         ctx.beginPath(); ctx.arc(x, sy, r, 0, Math.PI * 2); ctx.stroke();
-        ctx.strokeStyle = C.green;
-        ctx.lineCap = 'round';
-        ctx.beginPath(); ctx.arc(x, sy, r, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * a); ctx.stroke();
-        ctx.lineCap = 'butt';
+        if (a > 0.001) {
+          ctx.strokeStyle = C.green;
+          ctx.lineCap = 'round';
+          ctx.beginPath(); ctx.arc(x, sy, r, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * a); ctx.stroke();
+          ctx.lineCap = 'butt';
+        }
         ctx.fillStyle = C.green;
         ctx.fillText(String(Math.round(100 * a)), x, sy + 0.5);
         ctx.fillStyle = C.muted;
@@ -572,8 +665,11 @@ export function initSequence(config = {}) {
         captionStates[idx] = true;
         const dist = Math.abs(progress - mid);
         const normDist = 1 - Math.min(1, dist / span);
-        const opacity = Math.min(1, normDist * 1.5);
-        const translateY = (1 - normDist) * 20;
+        const isLast = idx === captions.length - 1;
+        // The final caption stays fully visible once the animation completes
+        const holdLast = isLast && progress > mid;
+        const opacity = holdLast ? 1 : Math.min(1, normDist * 1.5);
+        const translateY = holdLast ? 0 : (1 - normDist) * 20;
 
         el.style.opacity = opacity.toFixed(3);
         el.style.transform = `translate3d(0, ${translateY.toFixed(1)}px, 0)`;
@@ -624,7 +720,7 @@ export function initSequence(config = {}) {
   const lenisInstance = userLenis || (typeof window !== 'undefined' ? window.lenis : null);
   // When Lenis handles inertia, use snappy 0.35 smoothing to avoid lagging behind scroll.
   // When on native un-eased wheel scrolling, use 0.20 for smooth interpolation.
-  const effectiveSmoothing = lenisInstance ? 0.35 : (smoothing || 0.2);
+  const effectiveSmoothing = lenisInstance ? 0.5 : (smoothing || 0.2);
 
   /**
    * Optimized rAF rendering loop: runs ONLY while moving and stops immediately when settled
@@ -651,7 +747,16 @@ export function initSequence(config = {}) {
       const frameIdx = Math.max(0, Math.min(activeCount - 1, Math.round(currentFrame)));
       const progress = frameIdx / (activeCount - 1);
 
-      if (frameIdx !== lastDrawnFrame) {
+      if (hasFallbackMode) {
+        // Procedural scene: use the continuous (un-quantised) progress so motion is smooth
+        const smoothProgress = Math.max(0, Math.min(1, currentFrame / (activeCount - 1)));
+        if (Math.abs(smoothProgress - lastSmoothProgress) > 0.0002 || smoothProgress === 0 || smoothProgress === 1) {
+          lastSmoothProgress = smoothProgress;
+          drawProcedural(smoothProgress);
+          lastDrawnFrame = frameIdx;
+          syncUI(smoothProgress, frameIdx);
+        }
+      } else if (frameIdx !== lastDrawnFrame) {
         drawFrame(frameIdx);
         syncUI(progress, frameIdx);
       }
@@ -879,6 +984,15 @@ export function initSequence(config = {}) {
   );
   observer.observe(wrapper);
 
+  // Exact on-screen check (no margin): switch off full-screen blur/grain layers only while
+  // the animated canvas is actually visible, because they re-blend on every canvas frame.
+  const visibleObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      document.documentElement.classList.toggle('seq-active', entry.isIntersecting);
+    });
+  }, { threshold: [0], rootMargin: '-2px 0px -2px 0px' });
+  visibleObserver.observe(wrapper);
+
   // Redraw when theme flips
   window.addEventListener('themechanged', () => {
     drawFrame(Math.round(currentFrame), true);
@@ -896,6 +1010,8 @@ export function initSequence(config = {}) {
   return {
     destroy: () => {
       observer.disconnect();
+      visibleObserver.disconnect();
+      document.documentElement.classList.remove('seq-active');
       resizeObserver.disconnect();
       if (scrollTriggerInstance) {
         scrollTriggerInstance.kill();

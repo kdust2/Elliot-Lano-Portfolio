@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
       captions: [
         { from: 0.05, to: 0.32, el: document.getElementById('seq-caption-1') },
         { from: 0.38, to: 0.65, el: document.getElementById('seq-caption-2') },
-        { from: 0.71, to: 0.98, el: document.getElementById('seq-caption-3') }
+        { from: 0.71, to: 1.01, el: document.getElementById('seq-caption-3') }
       ],
       onPreloadProgress: (ratio) => {
         if (typeof window.updatePreloader === 'function') window.updatePreloader(ratio);
